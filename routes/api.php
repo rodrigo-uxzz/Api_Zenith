@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AuthUserController;
 
-Route::post('/register', [UsersController::class, 'store']);
+Route::post('/registerPsicolgo', [UsersController::class, 'cadastroPsicologo']);
+Route::post('/registerPaciente', [usersController::class, 'cadastroPaciente']);
 Route::post('/login', [AuthUserController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {

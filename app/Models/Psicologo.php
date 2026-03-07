@@ -9,8 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Psicologo extends Authenticatable
 {
     protected $table = 'psicologo';
-
-    public $timestamps = false;
+    protected $primaryKey = 'id_psicologo';
 
     protected $fillable = [
         'id_usuario',

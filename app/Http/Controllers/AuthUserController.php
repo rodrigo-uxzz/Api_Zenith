@@ -27,7 +27,7 @@ class AuthUserController extends Controller
             if ($user->tipo_usuario === 'psicologo' && $user->psicologo->status_psicologo !== 'aprovado') {
                 return response()->json(['error' => 'Aguarde verificação da conta'], 403);
             }
-
+       
             $token = $user->createToken('auth-token')->plainTextToken;
 
             return response()->json([
@@ -47,17 +47,17 @@ class AuthUserController extends Controller
 
     public function logout(Request $request)
     {
-        try{
+        try {
             $request->user()->currentAccessToken()->delete();
+
             return response()->json(['message' => 'Logout realizado com sucesso'], 200);
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao processar logout',
                 'details' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function perfil(Request $request)
     {
@@ -87,7 +87,7 @@ class AuthUserController extends Controller
                 'email' => 'sometimes|email|max:255|unique:users,email,'.$user->id_usuario.',id_usuario',
                 'telefone' => 'sometimes|string|max:20',
                 'senha' => 'sometimes|min:6',
-                'biografia' => 'sometimes|string|max:255',
+               
             ]);
 
             if (isset($dados['senha'])) {
@@ -96,6 +96,14 @@ class AuthUserController extends Controller
             }
 
             $user->update($dados);
+
+            if ($user->tipo_usuario === "psicologo"){
+                $user->psicologo()->update([
+                    'biografia' => 'sometimes|string|max:255',
+                ]);
+            }
+            
+
 
             return response()->json([
                 'message' => 'Perfil atualizado com sucesso',
@@ -114,17 +122,23 @@ class AuthUserController extends Controller
 
     public function excluirPerfil(Request $request)
     {
-        try{
+        try {
             $user = $request->user();
             $user->tokens()->delete();
-            $user->psicologo()->delete();
             $user->delete();
+
+            if ($user->tipo_usuario === "psicologo"){
+                $user->psicologo()->delete();
+            }
+            if ($user->tipo_usuario === "paciente"){
+                $user->paciente()->delete();
+            }
 
             return response()->json([
                 'message' => 'Perfil excluído com sucesso',
             ], 200);
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao excluir perfil',
                 'details' => $e->getMessage(),
