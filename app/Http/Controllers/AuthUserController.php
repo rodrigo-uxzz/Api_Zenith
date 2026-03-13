@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Psicologo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,20 +15,28 @@ class AuthUserController extends Controller
         try {
 
             $credenciais = $request->validate([
-                'email' => 'required|email',
+                'login' => 'required|string',
                 'senha' => 'required',
             ]);
 
-            $user = User::where('email', $credenciais['email'])->first();
+            $user = User::where('email', $credenciais['login'])->first();
 
-            if (! $user || ! Hash::check($credenciais['senha'], $user->senha_hash)) {
+            if (!$user){
+                $psicologo = Psicologo::where('crp', $credenciais['login'])->first();
+
+                if($psicologo){
+                    $user = User::find($psicologo->id_usuario);
+                }
+            }
+
+            if (!$user || !Hash::check($credenciais['senha'], $user->senha_hash)) {
                 return response()->json(['error' => 'Credenciais inválidas'], 401);
             }
 
             if ($user->tipo_usuario === 'psicologo' && $user->psicologo->status_psicologo !== 'aprovado') {
                 return response()->json(['error' => 'Aguarde verificação da conta'], 403);
             }
-       
+
             $token = $user->createToken('auth-token')->plainTextToken;
 
             return response()->json([
@@ -87,7 +96,7 @@ class AuthUserController extends Controller
                 'email' => 'sometimes|email|max:255|unique:users,email,'.$user->id_usuario.',id_usuario',
                 'telefone' => 'sometimes|string|max:20',
                 'senha' => 'sometimes|min:6',
-               
+
             ]);
 
             if (isset($dados['senha'])) {
@@ -102,7 +111,7 @@ class AuthUserController extends Controller
                     'biografia' => 'sometimes|string|max:255',
                 ]);
             }
-            
+
 
 
             return response()->json([

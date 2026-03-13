@@ -23,14 +23,14 @@ class UsersController extends Controller
                 'username' => 'required|string|max:255|unique:users,username',
                 'email' => 'required|string|email|max:255|unique:users,email',
                 'telefone' => 'required|string|max:20',
-                'genero' => 'required|string|max:20',
+                'genero' => 'required|in:MASCULINO,FEMININO,OUTRO,PREFIRO_NAO_INFORMAR',
                 'senha' => 'required|string|min:6',
-                'data_nascimento' => 'required|date',
+                'data' => 'required|date',
                 'cpf' => 'required|string|size:11|unique:users,cpf',
                 'crp' => 'required|string|max:20|unique:psicologo,crp',
-                'cadastro_e-psi' => 'required|boolean|unique:psicologo,cadastro_e-psi',
-                'grau_formacao' => 'required|in:TECNOLOGO,BACHARELADO,LICENCIATURA,ESPECIALIZACAO,MESTRADO,DOUTORADO,POS_DOUTORADO',
-                'termos_aceitos' => 'required|boolean',
+                'cadastroEpsi' => 'required|boolean',
+                'formacao' => 'required|in:GRADUACAO,BACHARELADO,LICENCIATURA,ESPECIALIZACAO,MESTRADO,DOUTORADO,POS_DOUTORADO',
+                'termos' => 'required|boolean',
             ]);
 
             $user = User::create([
@@ -40,19 +40,19 @@ class UsersController extends Controller
                 'telefone'=>$validatedData['telefone'],
                 'genero'=>$validatedData['genero'],
                 'senha_hash'=>Hash::make($validatedData['senha']),
-                'data_nascimento'=>$validatedData['data_nascimento'],
+                'data_nascimento'=>$validatedData['data'],
                 'cpf'=>$validatedData['cpf'],
                 'tipo_usuario'=>'psicologo' ,
                 'status_usuario'=>'ativo',
-                'termos_aceitos'=>$validatedData['termos_aceitos'],
+                'termos_aceitos'=>$validatedData['termos'],
 
             ]);
 
             Psicologo::create([
                 'id_usuario' => $user->id_usuario,
                 'crp'=> $validatedData['crp'],
-                'cadastro_e-psi'=>$validatedData['cadastro_e-psi'],
-                'grau_formacao'=>$validatedData['grau_formacao'],
+                'cadastro_e-psi'=>$validatedData['cadastroEpsi'],
+                'grau_formacao'=>$validatedData['formacao'],
                 'status_psicologo' => 'pendente',
             ]);
 
@@ -84,13 +84,13 @@ class UsersController extends Controller
                 'username' => 'required|string|max:255|unique:users,username',
                 'email' => 'required|string|email|max:255|unique:users,email',
                 'telefone' => 'required|string|max:20',
-                'genero' => 'required|in:MASCULINO,FEMININO,OUTROS',
+                'genero' => 'required|in:MASCULINO,FEMININO,OUTRO,PREFIRO_NAO_INFORMAR',
                 'senha' => 'required|string|min:6',
-                'data_nascimento' => 'required|date',
+                'data' => 'required|date',
                 'cpf' => 'required|string|size:11|unique:users,cpf',
-                'termos_aceitos' => 'required|boolean',
+                'termos' => 'required|boolean',
             ]);
-            
+
             $user = User::create([
                 'nome' => $validatedData['nome'],
                 'username' => $validatedData['username'],
@@ -98,11 +98,11 @@ class UsersController extends Controller
                 'telefone' => $validatedData['telefone'],
                 'genero' => $validatedData['genero'],
                 'senha_hash' =>Hash::make($validatedData['senha']),
-                'data_nascimento' => $validatedData['data_nascimento'],
+                'data_nascimento' => $validatedData['datao'],
                 'cpf' => $validatedData['cpf'],
                 'tipo_usuario' => 'paciente',
                 'status_usuario' => 'ativo',
-                'termos_aceitos' => $validatedData['termos_aceitos'],
+                'termos_aceitos' => $validatedData['termos'],
 
             ]);
 
@@ -121,7 +121,7 @@ class UsersController extends Controller
 
         }catch(\Exception $e){
             DB::rollback();
-            
+
             return response()->json([
                 'error' => 'Erro ao cadastrar paciente',
                 'message' => $e->getMessage()

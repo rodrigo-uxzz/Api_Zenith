@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AuthUserController;
 
-Route::post('/registerPsicolgo', [UsersController::class, 'cadastroPsicologo']);
+Route::post('/registerPsicologo', [UsersController::class, 'cadastroPsicologo']);
 Route::post('/registerPaciente', [usersController::class, 'cadastroPaciente']);
 Route::post('/login', [AuthUserController::class, 'login']);
 
