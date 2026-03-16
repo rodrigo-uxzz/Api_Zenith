@@ -95,7 +95,7 @@ class AuthUserController extends Controller
                 'nome' => 'sometimes|string|max:255',
                 'email' => 'sometimes|email|max:255|unique:users,email,'.$user->id_usuario.',id_usuario',
                 'telefone' => 'sometimes|string|max:20',
-                'senha' => 'sometimes|min:6',
+                'senha' => 'sometimes|min:8',
 
             ]);
 
