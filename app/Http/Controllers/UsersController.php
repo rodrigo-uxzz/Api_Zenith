@@ -98,7 +98,7 @@ class UsersController extends Controller
                 'telefone' => $validatedData['telefone'],
                 'genero' => $validatedData['genero'],
                 'senha_hash' =>Hash::make($validatedData['senha']),
-                'data_nascimento' => $validatedData['datao'],
+                'data_nascimento' => $validatedData['data'],
                 'cpf' => $validatedData['cpf'],
                 'tipo_usuario' => 'paciente',
                 'status_usuario' => 'ativo',
