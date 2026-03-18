@@ -71,15 +71,15 @@ class AuthUserController extends Controller
     public function perfil(Request $request)
     {
         try {
-    
+
             $user = $request->user();
             $psicologo = Psicologo::where('id_usuario', $user->id_usuario)->first();
-    
+
             return response()->json([
                 'user' => $user,
                 'psicologo' => $psicologo
             ], 200);
-    
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao obter perfil',
