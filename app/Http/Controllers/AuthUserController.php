@@ -72,13 +72,10 @@ class AuthUserController extends Controller
     public function perfil(Request $request)
     {
         try {
-
             $user = $request->user();
-            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)->first();
 
             return response()->json([
                 'user' => $user,
-                'psicologo' => $psicologo
             ], 200);
 
         } catch (\Exception $e) {
@@ -99,14 +96,14 @@ class AuthUserController extends Controller
                 'nome' => 'sometimes|string|max:255',
                 'email' => 'sometimes|email|max:255|unique:users,email,'.$user->id_usuario.',id_usuario',
                 'telefone' => 'sometimes|string|max:20',
-                'senha' => 'sometimes|min:8',
+                // 'senha' => 'sometimes|min:8',
 
             ]);
 
-            if (isset($dados['senha'])) {
-                $dados['senha_hash'] = Hash::make($dados['senha']);
-                unset($dados['senha']);
-            }
+            // if (isset($dados['senha'])) {
+            //     $dados['senha_hash'] = Hash::make($dados['senha']);
+            //     unset($dados['senha']);
+            // }
 
             $user->update($dados);
 
