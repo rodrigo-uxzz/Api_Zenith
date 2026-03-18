@@ -6,6 +6,7 @@ use App\Models\Psicologo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class AuthUserController extends Controller
 {
@@ -132,26 +133,41 @@ class AuthUserController extends Controller
     public function excluirPerfil(Request $request)
     {
         try {
-            $user = $request->user();
-            $user->tokens()->delete();
-            $user->delete();
 
-            if ($user->tipo_usuario === "psicologo"){
+            $user = $request->user();
+
+            DB::beginTransaction();
+
+            // 🔴 deletar relacionamentos primeiro
+            if ($user->tipo_usuario === "psicologo") {
                 $user->psicologo()->delete();
             }
-            if ($user->tipo_usuario === "paciente"){
+
+            if ($user->tipo_usuario === "paciente") {
                 $user->paciente()->delete();
             }
+
+            // 🔴 deletar tokens
+            $user->tokens()->delete();
+
+            // 🔴 deletar usuário por último
+            $user->delete();
+
+            DB::commit();
 
             return response()->json([
                 'message' => 'Perfil excluído com sucesso',
             ], 200);
 
         } catch (\Exception $e) {
+
+            DB::rollBack();
+
             return response()->json([
                 'error' => 'Erro ao excluir perfil',
                 'details' => $e->getMessage(),
             ], 500);
+
         }
     }
 }
