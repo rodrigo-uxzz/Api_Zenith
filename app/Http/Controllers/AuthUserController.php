@@ -100,6 +100,7 @@ class AuthUserController extends Controller
                 'email' => 'sometimes|email|max:255|unique:users,email,'.$user->id_usuario.',id_usuario',
                 'telefone' => 'sometimes|string|max:20',
                 'senha' => 'sometimes|min:8',
+                'biografia' => 'sometimes|string|max:255',
 
             ]);
 
@@ -110,12 +111,11 @@ class AuthUserController extends Controller
 
             $user->update($dados);
 
-            if ($user->tipo_usuario === "psicologo"){
+            if ($user->tipo_usuario === "psicologo" && isset($dados['biografia'])) {
                 $user->psicologo()->update([
-                    'biografia' => 'sometimes|string|max:255',
+                    'biografia' => $dados['biografia'],
                 ]);
             }
-
 
 
             return response()->json([
