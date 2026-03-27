@@ -33,6 +33,7 @@ class User extends Authenticatable
         'tipo_usuario',
         'status_usuario',
         'termos_aceitos',
+        'foto_perfil'
     ];
 
 

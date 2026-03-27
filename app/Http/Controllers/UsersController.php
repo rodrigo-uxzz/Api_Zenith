@@ -31,7 +31,14 @@ class UsersController extends Controller
                 'cadastroEpsi' => 'required|boolean',
                 'formacao' => 'required|in:GRADUACAO,BACHARELADO,LICENCIATURA,ESPECIALIZACAO,MESTRADO,DOUTORADO,POS_DOUTORADO',
                 'termos' => 'required|boolean',
+                'foto' => 'image|mimes:jpg,jpeg,png|max:2048'
             ]);
+
+            if($request->hasFile('foto')){
+                $fotoPerfil = $request->file('foto')->store('fotos', 'public');
+            }else{
+                $fotoPerfil = null;
+            }
 
             $user = User::create([
                 'nome' => $validatedData['nome'],
@@ -45,6 +52,7 @@ class UsersController extends Controller
                 'tipo_usuario'=>'psicologo' ,
                 'status_usuario'=>'ativo',
                 'termos_aceitos'=>$validatedData['termos'],
+                'foto_perfil' => $fotoPerfil
 
             ]);
 
@@ -89,7 +97,14 @@ class UsersController extends Controller
                 'data' => 'required|date',
                 'cpf' => 'required|string|size:11|unique:users,cpf',
                 'termos' => 'required|boolean',
+                'foto' =>  'image|mimes:jpg,jpeg,png|max:2048'
             ]);
+
+            if($request->hasFile('foto')){
+                $fotoPerfil = $request->file('foto')->store('fotos', 'public');
+            }else{
+                $fotoPerfil = null;
+            }
 
             $user = User::create([
                 'nome' => $validatedData['nome'],
@@ -103,6 +118,7 @@ class UsersController extends Controller
                 'tipo_usuario' => 'paciente',
                 'status_usuario' => 'ativo',
                 'termos_aceitos' => $validatedData['termos'],
+                'foto_perfil' => $fotoPerfil
 
             ]);
 
