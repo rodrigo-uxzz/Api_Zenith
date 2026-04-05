@@ -104,8 +104,8 @@ class AuthUserController extends Controller
         try {
 
             $dados = $request->validate([
-                'username' => 'nullable|string|required_without:cpf',
-                'cpf' => 'nullable|string|required_without:username',
+                'username' => 'string|required_without:cpf',
+                'cpf' => 'string|required_without:username',
             ]);
 
             $usernameExiste = false;
