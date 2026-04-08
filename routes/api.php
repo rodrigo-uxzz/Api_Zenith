@@ -23,3 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/verPsicologo/{id}', [PacienteController::class, 'verPsicologo']);
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/verPaciente/{id}', [PsicologosController::class, 'verPaciente']);
+        Route::get('/listarPacientes', [PsicologosController::class, 'listarPacientes']);
+        
+});
+

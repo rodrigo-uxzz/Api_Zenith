@@ -97,7 +97,7 @@ class UsersController extends Controller
                 'data' => 'required|date',
                 'cpf' => 'required|string|size:11|unique:users,cpf',
                 'termos' => 'required|boolean',
-                'foto' =>  'image|mimes:jpg,jpeg,png|max:2048'
+                'foto' =>  'nullable|image|mimes:jpg,jpeg,png|max:2048'
             ]);
 
             if($request->hasFile('foto')){
