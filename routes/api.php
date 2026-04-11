@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PsicologosController;
 
+
 Route::post('/registerPsicologo', [UsersController::class, 'cadastroPsicologo']);
 Route::post('/registerPaciente', [UsersController::class, 'cadastroPaciente']);
 Route::post('/login', [AuthUserController::class, 'login']);
@@ -26,6 +27,5 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
         Route::get('/verPaciente/{id}', [PsicologosController::class, 'verPaciente']);
         Route::get('/listarPacientes', [PsicologosController::class, 'listarPacientes']);
-        
 });
 
