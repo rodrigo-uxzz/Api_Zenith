@@ -31,7 +31,7 @@ class UsersController extends Controller
                 'cadastroEpsi' => 'required|boolean',
                 'formacao' => 'required|in:GRADUACAO,BACHARELADO,LICENCIATURA,ESPECIALIZACAO,MESTRADO,DOUTORADO,POS_DOUTORADO',
                 'termos' => 'required|boolean',
-                'foto' => 'image|mimes:jpg,jpeg,png|max:2048'
+                'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
             ]);
 
             if($request->hasFile('foto')){
@@ -55,11 +55,10 @@ class UsersController extends Controller
                 'foto_perfil' => $fotoPerfil
 
             ]);
-
             Psicologo::create([
                 'id_usuario' => $user->id_usuario,
                 'crp'=> $validatedData['crp'],
-                'cadastro_e-psi'=>$validatedData['cadastroEpsi'],
+                'cadastro_epsi'=>$validatedData['cadastroEpsi'],
                 'grau_formacao'=>$validatedData['formacao'],
                 'status_psicologo' => 'pendente',
             ]);
