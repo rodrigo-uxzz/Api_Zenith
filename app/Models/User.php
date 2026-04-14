@@ -43,7 +43,7 @@ class User extends Authenticatable
 
     }
 
-    public function paciente ()
+    public function paciente()
     {
         return $this->hasOne(Paciente::class, 'id_usuario', 'id_usuario');
 

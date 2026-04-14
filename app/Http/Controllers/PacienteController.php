@@ -41,7 +41,12 @@ class PacienteController extends Controller
         try {
             $psicologos = User::where('tipo_usuario', 'psicologo')
             ->where('status_usuario', 'ativo')
-            ->with('psicologo')
+            ->with([
+                'psicologo',
+                'psicologo.abordagens',
+                'psicologo.especialidades',
+                'psicologo.atendimentos',
+            ])
             ->whereHas('psicologo', function ($query) {
                 $query->where('status_psicologo', 'aprovado');
             })
