@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agenda;
+use App\Models\Evento;
+use App\Models\Psicologo;
 use App\Models\Sessao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,8 +33,10 @@ class AgendaController extends Controller
 
             $horarios = [];
 
-            $tempoConsulta = 50;
-            $intervalo = 10;
+            $psicologo = Psicologo::find($id_psicologo);
+
+            $tempoConsulta = $psicologo->duracao_consulta;
+            $intervalo = $psicologo->intervalo_consulta;
             $tempoTotal = $tempoConsulta + $intervalo;
 
             foreach ($agendas as $agenda) {
@@ -49,7 +53,22 @@ class AgendaController extends Controller
                         ->where('hora_inicio', $hora)
                         ->exists();
 
-                    if (! $ocupado) {
+                    $horaFormatada = date('H:i:s', strtotime($hora));
+
+                    $evento = Evento::where('id_psicologo', $id_psicologo)
+                        ->where('data_inicio', '<=', $data)
+                        ->where('data_fim', '>=', $data)
+                        ->where(function ($queryEvento) use ($horaFormatada) {
+                            $queryEvento->whereNull('hora_inicio')
+                                ->orWhere(function ($queryHorario) use ($horaFormatada) {
+                                    $queryHorario->where('Hora_inicio', '<=', $horaFormatada)
+                                        ->where('Hora_fim', '>', $horaFormatada);
+                                });
+
+                        })
+                        ->exists();
+
+                    if (! $ocupado && ! $evento) {
                         $horarios[] = $hora;
                     }
 
@@ -57,10 +76,13 @@ class AgendaController extends Controller
                 }
             }
 
+
+
+
             return response()->json($horarios);
 
-        }catch (\Exception $e) {
-            
+        } catch (\Exception $e) {
+
             return response()->json([
                 'error' => 'Erro ao buscar horários disponíveis',
                 'message' => $e->getMessage(),

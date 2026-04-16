@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Paciente extends Authenticatable
 {
     protected $table = 'paciente';
+
     protected $primaryKey = 'id_paciente';
 
     protected $fillable = [
@@ -17,4 +17,8 @@ class Paciente extends Authenticatable
 
     ];
 
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'id_usuario');
+    }
 }

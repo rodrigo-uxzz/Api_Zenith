@@ -21,6 +21,8 @@ class Psicologo extends Authenticatable
         'grau_formacao',
         'biografia',
         'status_psicologo',
+        'duracao_consulta',
+        'intervalo_consulta',
         'avaliacao',
     ];
 
@@ -55,4 +57,5 @@ class Psicologo extends Authenticatable
             'id_atendimento'
         );
     }
+
 }
