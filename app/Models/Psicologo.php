@@ -17,7 +17,7 @@ class Psicologo extends Authenticatable
     protected $fillable = [
         'id_usuario',
         'crp',
-        'cadastro_epsi',
+        'cadastro_e_psi',
         'grau_formacao',
         'biografia',
         'status_psicologo',

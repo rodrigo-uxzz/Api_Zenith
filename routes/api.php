@@ -41,5 +41,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
         Route::get('/horariosDisponiveis/{id_psicologo}', [AgendaController::class, 'horariosDisponiveis']);
         Route::post('/agendarSessao', [AgendaController::class, 'agendarSessao']);
+        Route::post('/marcarEvento', [AgendaController::class, 'marcarEvento']);
 });
 

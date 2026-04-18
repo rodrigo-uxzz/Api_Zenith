@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agenda;
+use App\Models\Evento;
 use App\Models\Paciente;
 use App\Models\Psicologo;
 use App\Models\Sessao;
@@ -63,18 +64,20 @@ class PsicologosController extends Controller
         DB::beginTransaction();
 
         try {
-            $psicologo = Psicologo::find($request->id_psicologo);
+
+            $id_psicologo = auth()->user()->psicologo->id_psicologo;
+            $psicologo = Psicologo::find($id_psicologo);
 
             $psicologo->update([
-                'duracao_consulta' => $request->duracao_consulta,
-                'intervalo_consulta' => $request->intervalo_consulta,
+                'duracao_consulta' => $request->duracao_consulta ?? $psicologo->duracao_consulta,
+                'intervalo_consulta' => $request->intervalo_consulta ?? $psicologo->intervalo_consulta,
             ]);
 
-            Agenda::where('id_psicologo', $request->id_psicologo)->delete();
+            Agenda::where('id_psicologo', $id_psicologo)->delete();
 
             foreach ($request->agendas as $agenda) {
                 Agenda::create([
-                    'id_psicologo' => $request->id_psicologo,
+                    'id_psicologo' => $id_psicologo,
                     'dia_semana' => $agenda['dia_semana'],
                     'hora_inicio' => $agenda['hora_inicio'],
                     'hora_fim' => $agenda['hora_fim'],
@@ -83,6 +86,10 @@ class PsicologosController extends Controller
             }
 
             DB::commit();
+
+            return response()->json([
+                'message' => 'Agenda configurada com sucesso',
+            ], 200);
 
         } catch (\Exception $e) {
 
@@ -112,38 +119,103 @@ class PsicologosController extends Controller
 
             $psicologo = Psicologo::find($id_psicologo);
 
-            $tempoConsulta = $psicologo->duracao_consulta;
-            $intervalo = $psicologo->intervalo_consulta;
+            if (! $psicologo) {
+                return response()->json([
+                    'error' => 'Psicólogo não encontrado',
+                ], 404);
+            }
+
+            $tempoConsulta = (int) $psicologo->duracao_consulta;
+            $intervalo = (int) $psicologo->intervalo_consulta;
             $tempoTotal = $tempoConsulta + $intervalo;
+
+            if ($tempoTotal <= 0) {
+                return response()->json([
+                    'error' => 'Configuração de tempo inválida',
+                ], 400);
+            }
 
             $horarios = [];
 
             foreach ($agendas as $agenda) {
 
-                $hora_inicio = strtotime($agenda->hora_inicio);
-                $hora_fim = strtotime($agenda->hora_fim);
+                if (! $agenda->hora_inicio || ! $agenda->hora_fim) {
+                    continue;
+                }
 
-                while ($hora_inicio + ($tempoConsulta * 60) <= $hora_fim) {
+                $hora_inicio = strtotime(date('H:i', strtotime($agenda->hora_inicio)));
+                $hora_fim = strtotime(date('H:i', strtotime($agenda->hora_fim)));
+
+                if (! $hora_inicio || ! $hora_fim || $hora_inicio >= $hora_fim) {
+                    continue;
+                }
+
+                $guard = 0;
+
+                while (($hora_inicio + ($tempoConsulta * 60)) <= $hora_fim) {
+
+                    if ($guard++ > 200) {
+                        break;
+                    }
 
                     $horarios[] = date('H:i', $hora_inicio);
+
                     $hora_inicio = strtotime("+{$tempoTotal} minutes", $hora_inicio);
+
+                    if (! $hora_inicio) {
+                        break;
+                    }
                 }
             }
+
             $sessoes = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data)
                 ->orderBy('hora_inicio')
                 ->with('paciente.usuario')
-                ->get()->mapWithKeys(function ($sessao) {
-                    $hora = date('H:i', strtotime($sessao->hora_inicio));
-
-                    return [$hora => $sessao];
+                ->get()
+                ->mapWithKeys(function ($sessao) {
+                    return [
+                        date('H:i', strtotime($sessao->hora_inicio)) => $sessao,
+                    ];
                 });
 
             $sessoesDisponiveis = [];
 
             foreach ($horarios as $horario) {
 
-                if (isset($sessoes[$horario])) {
+                $horaFormatada = date('H:i:s', strtotime($horario));
+
+                $evento = Evento::where('id_psicologo', $id_psicologo)
+                    ->where(function ($q) use ($data) {
+                        $q->where(function ($q2) use ($data) {
+                            $q2->whereNotNull('data_fim')
+                                ->where('data_inicio', '<=', $data)
+                                ->where('data_fim', '>=', $data);
+                        })
+                            ->orWhere(function ($q2) use ($data) {
+                                $q2->whereNull('data_fim');
+                            });
+                    })
+                    ->where(function ($q) use ($horaFormatada) {
+                        $q->whereNull('hora_inicio')
+                            ->orWhere(function ($q2) use ($horaFormatada) {
+                                $q2->where('hora_inicio', '<=', $horaFormatada)
+                                    ->where('hora_fim', '>', $horaFormatada);
+                            });
+                    })
+                    ->first();
+
+                if ($evento) {
+
+                    $sessoesDisponiveis[] = [
+                        'hora_inicio' => $horario,
+                        'status_sessao' => 'bloqueado',
+                        'tipo' => 'evento',
+                        'slug' => $evento->slug,
+                        'evento' => $evento,
+                    ];
+                } elseif (isset($sessoes[$horario])) {
+
                     $sessoesDisponiveis[] = [
                         'hora_inicio' => $sessoes[$horario]->hora_inicio,
                         'status_sessao' => $sessoes[$horario]->status_sessao,
@@ -151,6 +223,7 @@ class PsicologosController extends Controller
                     ];
 
                 } else {
+
                     $sessoesDisponiveis[] = [
                         'hora_inicio' => $horario,
                         'status_sessao' => 'disponivel',
@@ -164,6 +237,7 @@ class PsicologosController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
+
             return response()->json([
                 'error' => 'Erro ao buscar consultas do dia',
                 'message' => $e->getMessage(),
@@ -173,16 +247,16 @@ class PsicologosController extends Controller
 
     public function detalhesConsulta($id_sessao)
     {
-        try{
+        try {
             $sessao = Sessao::where('id_sessao', $id_sessao)
-            ->with('paciente.usuario')
-            ->first();
+                ->with('paciente.usuario')
+                ->first();
 
             return response()->json([
-                'sessao' => $sessao
+                'sessao' => $sessao,
             ]);
 
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao buscar sessão',
                 'message' => $e->getMessage(),
@@ -191,5 +265,4 @@ class PsicologosController extends Controller
     }
 }
 
-
-//consultasDoDia?data=2026-04-13
+// consultasDoDia?data=2026-04-13
