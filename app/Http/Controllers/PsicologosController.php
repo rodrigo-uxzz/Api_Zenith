@@ -170,6 +170,7 @@ class PsicologosController extends Controller
 
             $sessoes = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data)
+                ->where('status_sessao', '!=', 'cancelada')
                 ->orderBy('hora_inicio')
                 ->with('paciente.usuario')
                 ->get()
@@ -192,8 +193,17 @@ class PsicologosController extends Controller
                                 ->where('data_inicio', '<=', $data)
                                 ->where('data_fim', '>=', $data);
                         })
+                           ->orWhere(function ($q2) use ($data) {
+                                $q2->whereNotNull('data_fim')
+                                    ->where('data_inicio', '<=', $data)
+                                    ->where('data_fim', '>=', $data);
+                            })
                             ->orWhere(function ($q2) use ($data) {
-                                $q2->whereNull('data_fim');
+                                $q2->whereNull('data_fim')
+                                    ->whereDate('data_inicio', $data);
+                            })
+                            ->orWhere(function ($q2) {
+                                $q2->where('slug', 'almoco');
                             });
                     })
                     ->where(function ($q) use ($horaFormatada) {

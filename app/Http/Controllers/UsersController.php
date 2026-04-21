@@ -24,12 +24,12 @@ class UsersController extends Controller
                 'telefone' => 'required|string|max:20',
                 'genero' => 'required|in:MASCULINO,FEMININO,OUTRO,PREFIRO_NAO_INFORMAR',
                 'senha' => 'required|string|min:6',
-                'data' => 'required|date',
+                'data_nascimento' => 'required|date',
                 'cpf' => 'required|string|size:11|unique:users,cpf',
                 'crp' => 'required|string|max:20|unique:psicologo,crp',
                 'cadastroEpsi' => 'required|boolean',
                 'formacao' => 'required|in:GRADUACAO,BACHARELADO,LICENCIATURA,ESPECIALIZACAO,MESTRADO,DOUTORADO,POS_DOUTORADO',
-                'termos' => 'required|boolean',
+                'termos_aceitos' => 'required|boolean',
                 'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
@@ -46,11 +46,11 @@ class UsersController extends Controller
                 'telefone' => $validatedData['telefone'],
                 'genero' => $validatedData['genero'],
                 'senha_hash' => Hash::make($validatedData['senha']),
-                'data_nascimento' => $validatedData['data'],
+                'data_nascimento' => $validatedData['data_nascimento'],
                 'cpf' => $validatedData['cpf'],
                 'tipo_usuario' => 'psicologo',
                 'status_usuario' => 'ativo',
-                'termos_aceitos' => $validatedData['termos'],
+                'termos_aceitos' => $validatedData['termos_aceitos'],
                 'foto_perfil' => $fotoPerfil,
 
             ]);

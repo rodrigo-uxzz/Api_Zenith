@@ -7,6 +7,7 @@ use App\Models\Evento;
 use App\Models\Psicologo;
 use App\Models\Sessao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AgendaController extends Controller
@@ -33,6 +34,7 @@ class AgendaController extends Controller
 
             $horarios = [];
 
+            $id_sessao = $request->id_sessao;
             $psicologo = Psicologo::find($id_psicologo);
 
             $tempoConsulta = 50;
@@ -44,6 +46,7 @@ class AgendaController extends Controller
 
             foreach ($agendas as $agenda) {
 
+
                 $hora_inicio = strtotime($agenda->hora_inicio);
                 $hora_fim = strtotime($agenda->hora_fim);
 
@@ -54,6 +57,10 @@ class AgendaController extends Controller
                     $ocupado = Sessao::where('id_psicologo', $id_psicologo)
                         ->where('data_sessao', $data)
                         ->where('hora_inicio', $hora)
+                        ->where('status_sessao', '!=', 'cancelada')
+                        ->when($id_sessao, function ($query) use ($id_sessao) {
+                            $query->where('id_sessao', '!=', $id_sessao);
+                        })
                         ->exists();
 
                     $horaFormatada = date('H:i:s', strtotime($hora));
@@ -66,8 +73,16 @@ class AgendaController extends Controller
                                     ->where('data_fim', '>=', $data);
                             })
                                 ->orWhere(function ($q2) use ($data) {
+                                    $q2->whereNotNull('data_fim')
+                                        ->where('data_inicio', '<=', $data)
+                                        ->where('data_fim', '>=', $data);
+                                })
+                                ->orWhere(function ($q2) use ($data) {
                                     $q2->whereNull('data_fim')
-                                        ;
+                                        ->whereDate('data_inicio', $data);
+                                })
+                                ->orWhere(function ($q2) {
+                                    $q2->where('slug', 'almoco');
                                 });
                         })
                         ->where(function ($queryEvento) use ($horaFormatada) {
@@ -186,6 +201,7 @@ class AgendaController extends Controller
             $ocupado = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data_sessao)
                 ->where('hora_inicio', $hora_inicio)
+                ->where('status_sessao', '!==', 'cancelada')
                 ->exists();
 
             if ($ocupado) {
@@ -220,4 +236,134 @@ class AgendaController extends Controller
             ], 500);
         }
     }
+
+    public function sessaoRealizada($id_sessao)
+    {
+        DB::beginTransaction();
+
+        try {
+            $sessao = Sessao::find($id_sessao);
+
+            if (! $sessao) {
+                return response()->json([
+                    'error' => 'Sessão não encontrada',
+                ], 404);
+            }
+
+            $sessao->status_sessao = 'realizada';
+            $sessao->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Sessão conluída com sucesso',
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro concluir sessão',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function cancelarSessao($id_sessao)
+    {
+        DB::beginTransaction();
+
+        try {
+            $sessao = Sessao::find($id_sessao);
+
+            if (! $sessao) {
+                return response()->json([
+                    'error' => 'Sessão não encontrada',
+                ], 404);
+            }
+            $dataSessao = Carbon::parse(
+                $sessao->data_sessao.' '.$sessao->hora_inicio
+            );
+
+            $agora = Carbon::now();
+
+            if ($agora->diffInHours($dataSessao, false) < 24) {
+                return response()->json([
+                    'error' => 'Só é possível cancelar com no mínimo 24h de antecedência',
+                ], 400);
+            }
+
+            $sessao->status_sessao = 'cancelada';
+            $sessao->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Sessão cancelada com sucesso',
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao cancelar sessão',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function reagendarSessao(Request $request, $id_sessao)
+    {
+        DB::transaction();
+
+        try{
+            $sessao = Sessao::find($id_sessao);
+
+            if(!$sessao){
+                return response()->json([
+                    'error' => 'Sessão não encontrada',
+                ], 404);
+            }
+
+            $nova_data = $request->nova_data;
+            $nova_hora = $request->nova_hora;
+
+            $ocupado = Sessao::where('id_psicologo', $sessao->id_psicologo)
+                ->where('data_sessao', $nova_data)
+                ->where('hora_inicio', $nova_hora)
+                ->where('id_sessao', '!=', $id_sessao)
+                ->where('status_sessao', '!=', 'cancelada')
+                ->exists();
+
+            if($ocupado){
+                return response()->json([
+                    'error' => 'Horário ocupado',
+                ], 400);
+            }
+
+            $hora_fim = date('H:i', strtotime('+50 minutes', strtotime($nova_hora)));
+
+            $sessao->update([
+                'data_sessao' => $nova_data,
+                'hora_inicio' => $nova_hora,
+                'hora_fim' => $hora_fim,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Sessão reagendada com sucesso',
+            ], 200);
+
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao reagendar sessão',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
+
