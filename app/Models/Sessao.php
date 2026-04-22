@@ -18,4 +18,14 @@ class Sessao extends Model
         'valor',
         'status_sessao',
     ];
+
+    public function paciente()
+    {
+        return $this->belongsTo(Paciente::class, 'id_paciente');
+    }
+
+    public function psicologo()
+    {
+        return $this->belongsTo(Psicologo::class, 'id_psicologo');
+    }
 }

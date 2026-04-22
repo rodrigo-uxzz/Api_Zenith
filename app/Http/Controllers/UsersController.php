@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Psicologo;
 use App\Models\Paciente;
+use App\Models\Psicologo;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
-
-//CADASTRO PSICOLOGO
+    // CADASTRO PSICOLOGO
     public function cadastroPsicologo(Request $request)
     {
         DB::beginTransaction();
@@ -25,41 +24,40 @@ class UsersController extends Controller
                 'telefone' => 'required|string|max:20',
                 'genero' => 'required|in:MASCULINO,FEMININO,OUTRO,PREFIRO_NAO_INFORMAR',
                 'senha' => 'required|string|min:6',
-                'data' => 'required|date',
+                'data_nascimento' => 'required|date',
                 'cpf' => 'required|string|size:11|unique:users,cpf',
                 'crp' => 'required|string|max:20|unique:psicologo,crp',
                 'cadastroEpsi' => 'required|boolean',
                 'formacao' => 'required|in:GRADUACAO,BACHARELADO,LICENCIATURA,ESPECIALIZACAO,MESTRADO,DOUTORADO,POS_DOUTORADO',
-                'termos' => 'required|boolean',
-                'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+                'termos_aceitos' => 'required|boolean',
+                'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
-            if($request->hasFile('foto')){
+            if ($request->hasFile('foto')) {
                 $fotoPerfil = $request->file('foto')->store('fotos', 'public');
-            }else{
+            } else {
                 $fotoPerfil = null;
             }
 
             $user = User::create([
                 'nome' => $validatedData['nome'],
                 'username' => $validatedData['username'],
-                'email'=> $validatedData['email'],
-                'telefone'=>$validatedData['telefone'],
-                'genero'=>$validatedData['genero'],
-                'senha_hash'=>Hash::make($validatedData['senha']),
-                'data_nascimento'=>$validatedData['data'],
-                'cpf'=>$validatedData['cpf'],
-                'tipo_usuario'=>'psicologo' ,
-                'status_usuario'=>'ativo',
-                'termos_aceitos'=>$validatedData['termos'],
-                'foto_perfil' => $fotoPerfil
+                'email' => $validatedData['email'],
+                'telefone' => $validatedData['telefone'],
+                'genero' => $validatedData['genero'],
+                'senha_hash' => Hash::make($validatedData['senha']),
+                'data_nascimento' => $validatedData['data_nascimento'],
+                'cpf' => $validatedData['cpf'],
+                'tipo_usuario' => 'psicologo',
+                'status_usuario' => 'ativo',
+                'termos_aceitos' => $validatedData['termos_aceitos'],
+                'foto_perfil' => $fotoPerfil,
 
             ]);
             Psicologo::create([
                 'id_usuario' => $user->id_usuario,
-                'crp'=> $validatedData['crp'],
-                'cadastro_epsi'=>$validatedData['cadastroEpsi'],
-                'grau_formacao'=>$validatedData['formacao'],
+                'crp' => $validatedData['crp'],
+                'cadastro_e_psi' => $validatedData['cadastroEpsi'] ?? false,                'grau_formacao' => $validatedData['formacao'],
                 'status_psicologo' => 'pendente',
             ]);
 
@@ -76,7 +74,7 @@ class UsersController extends Controller
 
             return response()->json([
                 'error' => 'Erro ao cadastrar Psicologo',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
 
         }
@@ -85,7 +83,7 @@ class UsersController extends Controller
     public function cadastroPaciente(Request $request)
     {
         DB::beginTransaction();
-        try{
+        try {
             $validatedData = $request->validate([
                 'nome' => 'required|string|max:255',
                 'username' => 'required|string|max:255|unique:users,username',
@@ -96,12 +94,12 @@ class UsersController extends Controller
                 'data' => 'required|date',
                 'cpf' => 'required|string|size:11|unique:users,cpf',
                 'termos' => 'required|boolean',
-                'foto' =>  'nullable|image|mimes:jpg,jpeg,png|max:2048'
+                'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
-            if($request->hasFile('foto')){
+            if ($request->hasFile('foto')) {
                 $fotoPerfil = $request->file('foto')->store('fotos', 'public');
-            }else{
+            } else {
                 $fotoPerfil = null;
             }
 
@@ -111,19 +109,19 @@ class UsersController extends Controller
                 'email' => $validatedData['email'],
                 'telefone' => $validatedData['telefone'],
                 'genero' => $validatedData['genero'],
-                'senha_hash' =>Hash::make($validatedData['senha']),
+                'senha_hash' => Hash::make($validatedData['senha']),
                 'data_nascimento' => $validatedData['data'],
                 'cpf' => $validatedData['cpf'],
                 'tipo_usuario' => 'paciente',
                 'status_usuario' => 'ativo',
                 'termos_aceitos' => $validatedData['termos'],
-                'foto_perfil' => $fotoPerfil
+                'foto_perfil' => $fotoPerfil,
 
             ]);
 
             Paciente::create([
                 'id_usuario' => $user->id_usuario,
-                'status_paciente' => 'ativo'
+                'status_paciente' => 'ativo',
 
             ]);
 
@@ -131,17 +129,16 @@ class UsersController extends Controller
 
             return response()->json([
                 'message' => 'Paciente cadastrado com sucesso',
-                'user' => $user
+                'user' => $user,
             ], 200);
 
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
 
             return response()->json([
                 'error' => 'Erro ao cadastrar paciente',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
-
 }

@@ -44,7 +44,7 @@ class AuthUserController extends Controller
                 }
 
                 if ($user->tipo_usuario === 'psicologo' && $user->psicologo->status_psicologo !== 'aprovado') {
-                    return response()->json(['error' => 'Aguarde verificação da conta'], 403);
+                    return response()->json(['error' => 'Aguarde a verificação da conta'], 403);
                 }
 
                 $token = $user->createToken('auth-token')->plainTextToken;

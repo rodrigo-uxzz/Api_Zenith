@@ -3,24 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Container\Attributes\Auth;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Abordagem;
-use App\Models\Especialidade;
-use App\Models\Atendimento;
 
 class Psicologo extends Authenticatable
 {
     protected $table = 'psicologo';
+
     protected $primaryKey = 'id_psicologo';
 
     protected $fillable = [
         'id_usuario',
         'crp',
-        'cadastro_epsi',
+        'cadastro_e_psi',
         'grau_formacao',
         'biografia',
         'status_psicologo',
+        'duracao_consulta',
+        'intervalo_consulta',
         'avaliacao',
     ];
 
