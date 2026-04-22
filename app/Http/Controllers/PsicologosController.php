@@ -254,25 +254,6 @@ class PsicologosController extends Controller
             ], 500);
         }
     }
-
-    public function detalhesConsulta($id_sessao)
-    {
-        try {
-            $sessao = Sessao::where('id_sessao', $id_sessao)
-                ->with('paciente.usuario')
-                ->first();
-
-            return response()->json([
-                'sessao' => $sessao,
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Erro ao buscar sessão',
-                'message' => $e->getMessage(),
-            ]);
-        }
-    }
 }
 
 // consultasDoDia?data=2026-04-13

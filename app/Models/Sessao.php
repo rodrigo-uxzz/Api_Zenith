@@ -23,4 +23,9 @@ class Sessao extends Model
     {
         return $this->belongsTo(Paciente::class, 'id_paciente');
     }
+
+    public function psicologo()
+    {
+        return $this->belongsTo(Psicologo::class, 'id_psicologo');
+    }
 }

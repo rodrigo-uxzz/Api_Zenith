@@ -365,5 +365,25 @@ class AgendaController extends Controller
             ], 500);
         }
     }
+
+    public function detalhesConsulta($id_sessao)
+    {
+        try {
+            $sessao = Sessao::where('id_sessao', $id_sessao)
+                ->with('paciente.usuario')
+                ->with('psicologo.usuario')
+                ->first();
+
+            return response()->json([
+                'sessao' => $sessao,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao buscar sessão',
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
 }
 

@@ -3,15 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Container\Attributes\Auth;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Abordagem;
-use App\Models\Especialidade;
-use App\Models\Atendimento;
 
 class Psicologo extends Authenticatable
 {
     protected $table = 'psicologo';
+
     protected $primaryKey = 'id_psicologo';
 
     protected $fillable = [
@@ -58,4 +54,8 @@ class Psicologo extends Authenticatable
         );
     }
 
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'id_usuario');
+    }
 }
