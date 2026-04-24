@@ -32,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/listarPacientes', [PsicologosController::class, 'listarPacientes']);
     Route::get('/consultasDoDia', [PsicologosController::class, 'consultasDoDia']);
     Route::post('/configurarAgenda', [PsicologosController::class, 'configurarAgenda']);
+    Route::post('/aprovarSessao/{id_sessao}', [PsicologosController::class, 'aprovarSessao']);
+    Route::post('/recusarSessao/{id_sessao}', [PsicologosController::class, 'recusarSessao']);
 
 });
 
