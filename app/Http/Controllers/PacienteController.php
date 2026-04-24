@@ -12,7 +12,14 @@ class PacienteController extends Controller
     {
 
         try{
-            $psicolgo = Psicologo::where('id_usuario', $id)->first();
+            $psicolgo = Psicologo::where('id_usuario', $id)
+            ->where('status_psicologo', 'aprovado')
+            ->with([
+                'abordagens',
+                'especialidades',
+                'atendimentos',
+            ])
+            ->first();
 
             if (!$psicolgo) {
                 return response()->json([
