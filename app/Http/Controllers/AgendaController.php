@@ -268,7 +268,7 @@ class AgendaController extends Controller
             ], 500);
         }
     }
-
+ 
     public function cancelarSessao($id_sessao)
     {
         DB::beginTransaction();
