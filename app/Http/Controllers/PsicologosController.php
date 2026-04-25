@@ -10,6 +10,7 @@ use App\Models\Sessao;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class PsicologosController extends Controller
 {
@@ -171,6 +172,7 @@ class PsicologosController extends Controller
             $sessoes = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data)
                 ->where('status_sessao', '!=', 'cancelada')
+                ->where('status_sessao', '!=', 'pendente')
                 ->orderBy('hora_inicio')
                 ->with('paciente.usuario')
                 ->get()
@@ -193,7 +195,7 @@ class PsicologosController extends Controller
                                 ->where('data_inicio', '<=', $data)
                                 ->where('data_fim', '>=', $data);
                         })
-                           ->orWhere(function ($q2) use ($data) {
+                            ->orWhere(function ($q2) use ($data) {
                                 $q2->whereNotNull('data_fim')
                                     ->where('data_inicio', '<=', $data)
                                     ->where('data_fim', '>=', $data);
@@ -253,6 +255,89 @@ class PsicologosController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function aprovarSessao($id_sessao)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $sessao = Sessao::find($id_sessao);
+
+            if (! $sessao) {
+                return response()->json([
+                    'error' => 'Consulta não encontrada',
+                ], 404);
+            }
+            
+            // $dataSessao = Carbon::parse(
+            //     $sessao->data_sessao.' '.$sessao->hora_inicio
+            // );
+
+            // $agora = Carbon::now();
+
+            // if ($agora->diffInHours($dataSessao, false) < 24) {
+            //     return response()->json([
+            //         'error' => 'Só é possível cancelar com no mínimo 24h de antecedência',
+            //     ], 400);
+            // }
+
+            $sessao->status_sessao = 'agendada';
+            $sessao->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Sessão aprovada com sucesso',
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao aprovar sessão',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+
+    }
+
+    public function recusarSessao($id_sessao)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $sessao = Sessao::find($id_sessao);
+
+            if (! $sessao) {
+                return response()->json([
+                    'message' => 'Sessão não encontrada',
+                ], 404);
+            }
+
+            $sessao->status_sessao = 'cancelada';
+            $sessao->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Sessão recusada com sucesso',
+            ], 200);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao recusar sessão',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+
     }
 }
 

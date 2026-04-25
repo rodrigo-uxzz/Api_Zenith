@@ -46,7 +46,6 @@ class AgendaController extends Controller
 
             foreach ($agendas as $agenda) {
 
-
                 $hora_inicio = strtotime($agenda->hora_inicio);
                 $hora_fim = strtotime($agenda->hora_fim);
 
@@ -201,12 +200,23 @@ class AgendaController extends Controller
             $ocupado = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data_sessao)
                 ->where('hora_inicio', $hora_inicio)
-                ->where('status_sessao', '!==', 'cancelada')
+                ->where('status_sessao', '!=', 'cancelada')
                 ->exists();
 
             if ($ocupado) {
                 return response()->json([
                     'erro' => 'Horário já ocupado',
+                ], 400);
+            }
+            $dataSessao = Carbon::parse(
+                $request->data_sessao.' '.$request->hora_inicio
+            );
+
+            $agora = Carbon::now();
+
+            if ($agora->diffInHours($dataSessao, false) < 24) {
+                return response()->json([
+                    'error' => 'Só é possível solicitar agendamento com no mínimo 24h de antecedência',
                 ], 400);
             }
 
@@ -218,7 +228,7 @@ class AgendaController extends Controller
                 'data_sessao' => $data_sessao,
                 'hora_inicio' => $hora_inicio,
                 'hora_fim' => $hora_fim,
-                'status_sessao' => 'agendada',
+                'status_sessao' => 'pendente',
             ]);
 
             DB::commit();
@@ -316,10 +326,10 @@ class AgendaController extends Controller
     {
         DB::transaction();
 
-        try{
+        try {
             $sessao = Sessao::find($id_sessao);
 
-            if(!$sessao){
+            if (! $sessao) {
                 return response()->json([
                     'error' => 'Sessão não encontrada',
                 ], 404);
@@ -335,7 +345,7 @@ class AgendaController extends Controller
                 ->where('status_sessao', '!=', 'cancelada')
                 ->exists();
 
-            if($ocupado){
+            if ($ocupado) {
                 return response()->json([
                     'error' => 'Horário ocupado',
                 ], 400);
@@ -354,7 +364,6 @@ class AgendaController extends Controller
             return response()->json([
                 'message' => 'Sessão reagendada com sucesso',
             ], 200);
-
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -386,4 +395,3 @@ class AgendaController extends Controller
         }
     }
 }
-
