@@ -60,49 +60,7 @@ class PsicologosController extends Controller
 
     }
 
-    public function configurarAgenda(Request $request)
-    {
-        DB::beginTransaction();
 
-        try {
-
-            $id_psicologo = auth()->user()->psicologo->id_psicologo;
-            $psicologo = Psicologo::find($id_psicologo);
-
-            $psicologo->update([
-                'duracao_consulta' => $request->duracao_consulta ?? $psicologo->duracao_consulta,
-                'intervalo_consulta' => $request->intervalo_consulta ?? $psicologo->intervalo_consulta,
-            ]);
-
-            Agenda::where('id_psicologo', $id_psicologo)->delete();
-
-            foreach ($request->agendas as $agenda) {
-                Agenda::create([
-                    'id_psicologo' => $id_psicologo,
-                    'dia_semana' => $agenda['dia_semana'],
-                    'hora_inicio' => $agenda['hora_inicio'],
-                    'hora_fim' => $agenda['hora_fim'],
-                    'status_agenda' => 'disponivel',
-                ]);
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Agenda configurada com sucesso',
-            ], 200);
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return response()->json([
-                'error' => 'Erro ao configurar agenda',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-
-    }
 
     public function consultasDoDia(Request $request)
     {
@@ -257,88 +215,7 @@ class PsicologosController extends Controller
         }
     }
 
-    public function aprovarSessao($id_sessao)
-    {
-
-        DB::beginTransaction();
-
-        try {
-
-            $sessao = Sessao::find($id_sessao);
-
-            if (! $sessao) {
-                return response()->json([
-                    'error' => 'Consulta não encontrada',
-                ], 404);
-            }
-            
-            // $dataSessao = Carbon::parse(
-            //     $sessao->data_sessao.' '.$sessao->hora_inicio
-            // );
-
-            // $agora = Carbon::now();
-
-            // if ($agora->diffInHours($dataSessao, false) < 24) {
-            //     return response()->json([
-            //         'error' => 'Só é possível cancelar com no mínimo 24h de antecedência',
-            //     ], 400);
-            // }
-
-            $sessao->status_sessao = 'agendada';
-            $sessao->save();
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Sessão aprovada com sucesso',
-            ], 200);
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return response()->json([
-                'error' => 'Erro ao aprovar sessão',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-
-    }
-
-    public function recusarSessao($id_sessao)
-    {
-
-        DB::beginTransaction();
-
-        try {
-
-            $sessao = Sessao::find($id_sessao);
-
-            if (! $sessao) {
-                return response()->json([
-                    'message' => 'Sessão não encontrada',
-                ], 404);
-            }
-
-            $sessao->status_sessao = 'cancelada';
-            $sessao->save();
-
-            DB::commit();
-
-            return response()->json([
-                'message' => 'Sessão recusada com sucesso',
-            ], 200);
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return response()->json([
-                'error' => 'Erro ao recusar sessão',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-
-    }
+    
 }
 
 // consultasDoDia?data=2026-04-13

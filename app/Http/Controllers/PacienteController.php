@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Psicologo;
+use App\Models\Sessao;
+use App\Models\Paciente;
 use App\Models\User;
 
 class PacienteController extends Controller
@@ -33,7 +35,7 @@ class PacienteController extends Controller
                 'user' => $user,
                 'psicologo' => $psicolgo
             ], 200);
-            
+
         }catch(\Exception $e){
             return response()->json([
                 'error' => 'Erro ao buscar psicólogo',
@@ -67,6 +69,36 @@ class PacienteController extends Controller
             return response()->json([
                 'error' => 'Erro ao listar psicólogos',
                 'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function minhasSessoes(){
+        try{
+
+            $id_paciente = auth()->user()->paciente->id_paciente;
+
+            $sessoes = Sessao::where('id_paciente', $id_paciente)
+                ->with('psicologo.usuario')
+                ->orderBy('data_sessao', 'desc')
+                ->orderBy('hora_inicio', 'desc')
+                ->get();
+
+            if($sessoes->isEmpty()){
+                return response()->json([
+                    'error' => 'Nenhuma sessão encontrada',
+                    'sessoes' => $sessoes,
+                ], 404);
+            }
+
+            return response()->json([
+                'sessoes' => $sessoes,
+            ], 200);
+
+        }catch(\Exception $e){
+            return response()->json([
+                'error' => 'Erro ao buscar sessões',
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
