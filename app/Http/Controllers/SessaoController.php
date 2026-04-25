@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Agenda;
-use App\Models\Evento;
-use App\Models\Paciente;
-use App\Models\Psicologo;
 use App\Models\Sessao;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class SessaoController extends Controller
 {
@@ -28,7 +23,12 @@ class SessaoController extends Controller
             $ocupado = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data_sessao)
                 ->where('hora_inicio', $hora_inicio)
-                ->where('status_sessao', '!=', 'cancelada')
+                ->whereIn('status_sessao', [
+                    'pendente',
+                    'agendada',
+                    'cancelamento_solicitado',
+                    'reagendamento_solicitado',
+                ])
                 ->exists();
 
             if ($ocupado) {
@@ -170,7 +170,12 @@ class SessaoController extends Controller
                 ->where('data_sessao', $nova_data)
                 ->where('hora_inicio', $nova_hora)
                 ->where('id_sessao', '!=', $id_sessao)
-                ->where('status_sessao', '!=', 'cancelada')
+                ->whereIn('status_sessao', [
+                    'pendente',
+                    'agendada',
+                    'cancelamento_solicitado',
+                    'reagendamento_solicitado',
+                ])
                 ->exists();
 
             if ($ocupado) {
@@ -238,19 +243,26 @@ class SessaoController extends Controller
                 ], 404);
             }
 
-            // $dataSessao = Carbon::parse(
-            //     $sessao->data_sessao.' '.$sessao->hora_inicio
-            // );
+            if ($sessao->status_sessao === 'pendente') {
 
-            // $agora = Carbon::now();
+                $sessao->status_sessao = 'agendada';
 
-            // if ($agora->diffInHours($dataSessao, false) < 24) {
-            //     return response()->json([
-            //         'error' => 'Só é possível cancelar com no mínimo 24h de antecedência',
-            //     ], 400);
-            // }
+            } elseif ($sessao->status_sessao === 'cancelamento_solicitado') {
 
-            $sessao->status_sessao = 'agendada';
+                $sessao->status_sessao = 'cancelada';
+
+            } elseif ($sessao->status_sessao === 'reagendamento_solicitado') {
+
+                $sessao->data_sessao = $sessao->data_solicitada;
+                $sessao->hora_inicio = $sessao->hora_solicitada;
+                $sessao->hora_fim = date('H:i', strtotime('+50 minutes', strtotime($sessao->hora_solicitada)));
+
+                $sessao->data_solicitada = null;
+                $sessao->hora_solicitada = null;
+
+                $sessao->status_sessao = 'agendada';
+            }
+
             $sessao->save();
 
             DB::commit();
@@ -286,7 +298,23 @@ class SessaoController extends Controller
                 ], 404);
             }
 
-            $sessao->status_sessao = 'cancelada';
+            if ($sessao->status_sessao === 'pendente') {
+
+                $sessao->status_sessao = 'recusada';
+
+            } elseif ($sessao->status_sessao === 'cancelamento_solicitado') {
+
+                $sessao->status_sessao = 'agendada';
+
+            } elseif ($sessao->status_sessao === 'reagendamento_solicitado') {
+
+                $sessao->data_solicitada = null;
+                $sessao->hora_solicitada = null;
+
+                $sessao->status_sessao = 'agendada';
+
+            }
+
             $sessao->save();
 
             DB::commit();
@@ -302,6 +330,108 @@ class SessaoController extends Controller
                 'error' => 'Erro ao recusar sessão',
                 'message' => $e->getMessage(),
             ], 500);
+        }
+
+    }
+
+    public function solicitarCancelamento($id_sessao)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $sessao = Sessao::find($id_sessao);
+            if (! $sessao) {
+                return response()->json([
+                    'error' => 'Sessão não encontrada',
+                ], 404);
+            }
+
+            $id_paciente = auth()->user()->paciente->id_paciente;
+
+            if ($sessao->id_paciente != $id_paciente) {
+                return response()->json([
+                    'error' => 'Não autorizado',
+                ], 403);
+            }
+
+            if ($sessao->status_sessao !== 'agendada') {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
+            }
+
+            $sessao->status_sessao = 'cancelamento_solicitado';
+            $sessao->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Solicitação enviada',
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao solicitar cancelamento',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+
+    }
+
+    public function solicitarReagendamento(Request $request, $id_sessao)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $sessao = Sessao::find($id_sessao);
+
+            if (! $sessao) {
+                return response()->json([
+                    'error' => 'Sessão não encontrada',
+                ], 404);
+            }
+
+            $id_paciente = auth()->user()->paciente->id_paciente;
+
+            if ($sessao->id_paciente != $id_paciente) {
+                return response()->json([
+                    'error' => 'Não autorizado',
+                ], 403);
+            }
+
+            if ($sessao->status_sessao !== 'agendada') {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
+            }
+
+            $sessao->status_sessao = 'reagendamento_solicitado';
+            $sessao->data_solicitada = $request->nova_data;
+            $sessao->hora_solicitada = $request->nova_hora;
+            $sessao->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Solicitação enviada',
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao solicitar agendamento',
+                'message' => $e->getMessage(),
+            ], 500);
+
         }
 
     }

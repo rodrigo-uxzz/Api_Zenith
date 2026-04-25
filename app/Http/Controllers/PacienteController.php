@@ -86,9 +86,9 @@ class PacienteController extends Controller
 
             if($sessoes->isEmpty()){
                 return response()->json([
-                    'error' => 'Nenhuma sessão encontrada',
+                    'message' => 'Nenhuma sessão encontrada',
                     'sessoes' => $sessoes,
-                ], 404);
+                ], 200);
             }
 
             return response()->json([

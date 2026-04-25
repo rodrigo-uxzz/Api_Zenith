@@ -9,8 +9,6 @@ use App\Models\Psicologo;
 use App\Models\Sessao;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
 
 class PsicologosController extends Controller
 {
@@ -59,8 +57,6 @@ class PsicologosController extends Controller
         }
 
     }
-
-
 
     public function consultasDoDia(Request $request)
     {
@@ -129,8 +125,11 @@ class PsicologosController extends Controller
 
             $sessoes = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data)
-                ->where('status_sessao', '!=', 'cancelada')
-                ->where('status_sessao', '!=', 'pendente')
+                ->whereIn('status_sessao', [
+                    'agendada',
+                    'cancelamento_solicitado',
+                    'reagendamento_solicitado',
+                ])
                 ->orderBy('hora_inicio')
                 ->with('paciente.usuario')
                 ->get()
@@ -215,7 +214,46 @@ class PsicologosController extends Controller
         }
     }
 
-    
+    public function sessoesPendentes()
+    {
+        try{
+
+            $id_psicologo = auth()->user()->psicologo->id_psicologo;
+
+            $pendentes = Sessao::where('id_psicologo', $id_psicologo)
+                ->where('status_sessao', 'pendente')
+                ->with('paciente.usuario')
+                ->orderBy('data_sessao')
+                ->orderBy('hora_inicio')
+                ->get();
+
+            $cancelamentos = Sessao::where('id_psicologo', $id_psicologo)
+                ->where('status_sessao', 'cancelamento_solicitado')
+                ->with('paciente.usuario')
+                ->orderBy('data_sessao')
+                ->orderBy('hora_inicio')
+                ->get();
+
+            $reagendamentos = Sessao::where('id_psicologo', $id_psicologo)
+                ->where('status_sessao', 'reagendamento_solicitado')
+                ->with('paciente.usuario')
+                ->orderBy('data_sessao')
+                ->orderBy('hora_inicio')
+                ->get();
+
+            return response()->json([
+                'pendentes' => $pendentes,
+                'cancelamentos' => $cancelamentos,
+                'reagendamentos' => $reagendamentos
+            ], 200);
+
+        }catch(\Exception $e){
+            return response()->json([
+                'error' => 'Erro ao buscar sessões pendentes',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
 
 // consultasDoDia?data=2026-04-13

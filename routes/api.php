@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/verPaciente/{id}', [PsicologosController::class, 'verPaciente']);
     Route::get('/listarPacientes', [PsicologosController::class, 'listarPacientes']);
     Route::get('/consultasDoDia', [PsicologosController::class, 'consultasDoDia']);
+    Route::get('/sessoesPendentes', [PsicologosController::class, 'sessoesPendentes']);
 });
 
 // Rotas Agenda
@@ -45,10 +46,12 @@ Route::middleware('auth:sanctum')->group(function () {
 //Rotas Sessão
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/agendarSessao', [SessaoController::class, 'agendarSessao']);
-    Route::post('/sessaoRealizada/{id}', [SessaoController::class, 'sessaoRealizada']);
-    Route::post('/cancelarSessao/{id}', [SessaoController::class, 'cancelarSessao']);
-    Route::get('/detalhesConsulta/{id}', [SessaoController::class, 'detalhesConsulta']);
+    Route::post('/sessaoRealizada/{id_sessao}', [SessaoController::class, 'sessaoRealizada']);
+    Route::post('/cancelarSessao/{id_sessao}', [SessaoController::class, 'cancelarSessao']);
+    Route::get('/detalhesConsulta/{id_sessao}', [SessaoController::class, 'detalhesConsulta']);
     Route::post('/aprovarSessao/{id_sessao}', [SessaoController::class, 'aprovarSessao']);
     Route::post('/recusarSessao/{id_sessao}', [SessaoController::class, 'recusarSessao']);
+    Route::post('/solicitarCancelamento/{id_sessao}', [SessaoController::class, 'solicitarCancelamento']);
+    Route::post('/solicitarReagendamento/{id_sessao}', [SessaoController::class, 'solicitarReagendamento']);
 
 });

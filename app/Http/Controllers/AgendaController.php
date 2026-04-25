@@ -7,7 +7,6 @@ use App\Models\Evento;
 use App\Models\Psicologo;
 use App\Models\Sessao;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AgendaController extends Controller
@@ -56,7 +55,12 @@ class AgendaController extends Controller
                     $ocupado = Sessao::where('id_psicologo', $id_psicologo)
                         ->where('data_sessao', $data)
                         ->where('hora_inicio', $hora)
-                        ->where('status_sessao', '!=', 'cancelada')
+                        ->whereIn('status_sessao', [
+                            'pendente',
+                            'agendada',
+                            'cancelamento_solicitado',
+                            'reagendamento_solicitado',
+                        ])
                         ->when($id_sessao, function ($query) use ($id_sessao) {
                             $query->where('id_sessao', '!=', $id_sessao);
                         })
@@ -229,8 +233,4 @@ class AgendaController extends Controller
             ], 500);
         }
     }
-
-
-
-
 }
