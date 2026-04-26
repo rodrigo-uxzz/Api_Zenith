@@ -127,6 +127,8 @@ class PsicologosController extends Controller
                 ->where('data_sessao', $data)
                 ->whereIn('status_sessao', [
                     'agendada',
+                    'realizada',
+                    'pendente',
                     'cancelamento_solicitado',
                     'reagendamento_solicitado',
                 ])
