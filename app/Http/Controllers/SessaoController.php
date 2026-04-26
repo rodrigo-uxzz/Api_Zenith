@@ -42,6 +42,12 @@ class SessaoController extends Controller
 
             $agora = Carbon::now();
 
+            if ($dataSessao->isPast()) {
+                return response()->json([
+                    'error' => 'Não é possível agendar para uma data passada',
+                ], 400);
+            }
+
             if ($agora->diffInHours($dataSessao, false) < 24) {
                 return response()->json([
                     'error' => 'Só é possível solicitar agendamento com no mínimo 24h de antecedência',
@@ -166,6 +172,20 @@ class SessaoController extends Controller
             $nova_data = $request->nova_data;
             $nova_hora = $request->nova_hora;
 
+            $novaDataSessao = Carbon::parse($nova_data.' '.$nova_hora);
+
+            if ($novaDataSessao->isPast()) {
+                return response()->json([
+                    'error' => 'Data inválida',
+                ], 400);
+            }
+
+            if (Carbon::now()->diffInHours($novaDataSessao, false) < 24) {
+                return response()->json([
+                    'error' => 'Reagendamento precisa de 24h de antecedência',
+                ], 400);
+            }
+
             $ocupado = Sessao::where('id_psicologo', $sessao->id_psicologo)
                 ->where('data_sessao', $nova_data)
                 ->where('hora_inicio', $nova_hora)
@@ -241,6 +261,16 @@ class SessaoController extends Controller
                 return response()->json([
                     'error' => 'Consulta não encontrada',
                 ], 404);
+            }
+
+            $dataSessao = Carbon::parse(
+                $sessao->data_sessao.' '.$sessao->hora_inicio
+            );
+
+            if ($dataSessao->isPast()) {
+                return response()->json([
+                    'error' => 'Não é possível aprovar uma sessão que já passou',
+                ], 400);
             }
 
             if ($sessao->status_sessao === 'pendente') {
@@ -412,9 +442,26 @@ class SessaoController extends Controller
                 ], 400);
             }
 
+            $nova_data = $request->nova_data;
+            $nova_hora = $request->nova_hora;
+
+            $novaDataSessao = Carbon::parse($nova_data.' '.$nova_hora);
+
+            if ($novaDataSessao->isPast()) {
+                return response()->json([
+                    'error' => 'Data inválida',
+                ], 400);
+            }
+
+            if (Carbon::now()->diffInHours($novaDataSessao, false) < 24) {
+                return response()->json([
+                    'error' => 'Reagendamento precisa de 24h de antecedência',
+                ], 400);
+            }
+
             $sessao->status_sessao = 'reagendamento_solicitado';
-            $sessao->data_solicitada = $request->nova_data;
-            $sessao->hora_solicitada = $request->nova_hora;
+            $sessao->data_solicitada = $nova_data;
+            $sessao->hora_solicitada = $nova_hora;
             $sessao->save();
 
             DB::commit();

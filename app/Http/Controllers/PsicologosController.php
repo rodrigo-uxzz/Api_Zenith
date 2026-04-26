@@ -216,7 +216,7 @@ class PsicologosController extends Controller
 
     public function sessoesPendentes()
     {
-        try{
+        try {
 
             $id_psicologo = auth()->user()->psicologo->id_psicologo;
 
@@ -244,12 +244,45 @@ class PsicologosController extends Controller
             return response()->json([
                 'pendentes' => $pendentes,
                 'cancelamentos' => $cancelamentos,
-                'reagendamentos' => $reagendamentos
+                'reagendamentos' => $reagendamentos,
             ], 200);
 
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao buscar sessões pendentes',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function historicoSessoes()
+    {
+        try {
+
+            $id_psicologo = auth()->user()->psicologo->id_psicologo;
+
+            $realizadas = Sessao::where('id_psicologo', $id_psicologo)
+                ->where('status_sessao', 'realizada')
+                ->with('paciente.usuario')
+                ->orderBy('data_sessao', 'desc')
+                ->orderBy('hora_inicio', 'desc')
+                ->get();
+
+            $cancelamentos = Sessao::where('id_psicologo', $id_psicologo)
+                ->where('status_sessao', 'cancelada')
+                ->with('paciente.usuario')
+                ->orderBy('data_sessao', 'desc')
+                ->orderBy('hora_inicio', 'desc')
+                ->get();
+
+            return response()->json([
+                'realizadas' => $realizadas,
+                'cancelamentos' => $cancelamentos,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao buscar histótico de sessões',
                 'message' => $e->getMessage(),
             ], 500);
         }

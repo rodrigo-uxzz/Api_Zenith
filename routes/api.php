@@ -26,6 +26,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/listarPsicologos', [PacienteController::class, 'listarPsicologos']);
     Route::get('/verPsicologo/{id}', [PacienteController::class, 'verPsicologo']);
     Route::get('/minhasSessoes', [PacienteController::class, 'minhasSessoes']);
+    Route::get('/pacienteHistorico', [PacienteController::class, 'historicoSessoes']);
+
 });
 
 // Rotas Psicologo
@@ -34,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/listarPacientes', [PsicologosController::class, 'listarPacientes']);
     Route::get('/consultasDoDia', [PsicologosController::class, 'consultasDoDia']);
     Route::get('/sessoesPendentes', [PsicologosController::class, 'sessoesPendentes']);
+    Route::get('/psicologoHistorico', [PsicologosController::class, 'historicoSessoes']);
 });
 
 // Rotas Agenda
