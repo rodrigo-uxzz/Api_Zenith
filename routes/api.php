@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/agendarSessao', [SessaoController::class, 'agendarSessao']);
     Route::post('/sessaoRealizada/{id_sessao}', [SessaoController::class, 'sessaoRealizada']);
     Route::post('/cancelarSessao/{id_sessao}', [SessaoController::class, 'cancelarSessao']);
+    Route::post('/reagendarSessao/{id_sessao}', [SessaoController::class, 'reagendarSessao']);
     Route::get('/detalhesConsulta/{id_sessao}', [SessaoController::class, 'detalhesConsulta']);
     Route::post('/aprovarSessao/{id_sessao}', [SessaoController::class, 'aprovarSessao']);
     Route::post('/recusarSessao/{id_sessao}', [SessaoController::class, 'recusarSessao']);

@@ -19,6 +19,7 @@ class Sessao extends Model
         'status_sessao',
         'data_solicitada',
         'hora_solicitada',
+        'observacoes',
     ];
 
     public function paciente()

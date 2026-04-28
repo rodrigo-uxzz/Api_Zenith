@@ -113,7 +113,7 @@ class SessaoController extends Controller
         }
     }
 
-    public function cancelarSessao($id_sessao)
+    public function cancelarSessao(Request $request, $id_sessao)
     {
         DB::beginTransaction();
 
@@ -136,6 +136,16 @@ class SessaoController extends Controller
                     'error' => 'Só é possível cancelar com no mínimo 24h de antecedência',
                 ], 400);
             }
+
+            $motivo = $request->motivo;
+
+            if (! $motivo) {
+                return response()->json([
+                    'error' => 'Informe o motivo do cancelamento',
+                ], 400);
+            }
+
+            $sessao->observacoes = $motivo;
 
             $sessao->status_sessao = 'cancelada';
             $sessao->save();
@@ -313,7 +323,7 @@ class SessaoController extends Controller
 
     }
 
-    public function recusarSessao($id_sessao)
+    public function recusarSessao(Request $request, $id_sessao)
     {
 
         DB::beginTransaction();
@@ -326,6 +336,14 @@ class SessaoController extends Controller
                 return response()->json([
                     'message' => 'Sessão não encontrada',
                 ], 404);
+            }
+
+            $motivo = $request->motivo;
+
+            if (! $motivo) {
+                return response()->json([
+                    'error' => 'O motivo é obrigatório',
+                ], 400);
             }
 
             if ($sessao->status_sessao === 'pendente') {
@@ -345,6 +363,7 @@ class SessaoController extends Controller
 
             }
 
+            $sessao->observacoes = $motivo;
             $sessao->save();
 
             DB::commit();
