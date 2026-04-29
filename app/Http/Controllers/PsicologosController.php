@@ -70,56 +70,30 @@ class PsicologosController extends Controller
             $agendas = Agenda::where('id_psicologo', $id_psicologo)
                 ->where('dia_semana', $dia_semana)
                 ->where('status_agenda', 'disponivel')
+                ->where('data_inicio_vigencia', '<=', $data)
+                ->where(function ($q) use ($data) {
+                    $q->whereNull('data_fim_vigencia')
+                        ->orWhere('data_fim_vigencia', '>=', $data);
+                })
                 ->get();
 
             $psicologo = Psicologo::find($id_psicologo);
-
-            if (! $psicologo) {
-                return response()->json([
-                    'error' => 'Psicólogo não encontrado',
-                ], 404);
-            }
 
             $tempoConsulta = (int) $psicologo->duracao_consulta;
             $intervalo = (int) $psicologo->intervalo_consulta;
             $tempoTotal = $tempoConsulta + $intervalo;
 
-            if ($tempoTotal <= 0) {
-                return response()->json([
-                    'error' => 'Configuração de tempo inválida',
-                ], 400);
-            }
-
             $horarios = [];
 
             foreach ($agendas as $agenda) {
 
-                if (! $agenda->hora_inicio || ! $agenda->hora_fim) {
-                    continue;
-                }
-
-                $hora_inicio = strtotime(date('H:i', strtotime($agenda->hora_inicio)));
-                $hora_fim = strtotime(date('H:i', strtotime($agenda->hora_fim)));
-
-                if (! $hora_inicio || ! $hora_fim || $hora_inicio >= $hora_fim) {
-                    continue;
-                }
-
-                $guard = 0;
+                $hora_inicio = strtotime($agenda->hora_inicio);
+                $hora_fim = strtotime($agenda->hora_fim);
 
                 while (($hora_inicio + ($tempoConsulta * 60)) <= $hora_fim) {
 
-                    if ($guard++ > 200) {
-                        break;
-                    }
-
                     $horarios[] = date('H:i', $hora_inicio);
-
                     $hora_inicio = strtotime("+{$tempoTotal} minutes", $hora_inicio);
-
-                    if (! $hora_inicio) {
-                        break;
-                    }
                 }
             }
 
@@ -149,22 +123,10 @@ class PsicologosController extends Controller
 
                 $evento = Evento::where('id_psicologo', $id_psicologo)
                     ->where(function ($q) use ($data) {
-                        $q->where(function ($q2) use ($data) {
-                            $q2->whereNotNull('data_fim')
-                                ->where('data_inicio', '<=', $data)
-                                ->where('data_fim', '>=', $data);
-                        })
-                            ->orWhere(function ($q2) use ($data) {
-                                $q2->whereNotNull('data_fim')
-                                    ->where('data_inicio', '<=', $data)
-                                    ->where('data_fim', '>=', $data);
-                            })
-                            ->orWhere(function ($q2) use ($data) {
+                        $q->where('data_inicio', '<=', $data)
+                            ->where(function ($q2) use ($data) {
                                 $q2->whereNull('data_fim')
-                                    ->whereDate('data_inicio', $data);
-                            })
-                            ->orWhere(function ($q2) {
-                                $q2->where('slug', 'almoco');
+                                    ->orWhere('data_fim', '>=', $data);
                             });
                     })
                     ->where(function ($q) use ($horaFormatada) {
@@ -174,6 +136,7 @@ class PsicologosController extends Controller
                                     ->where('hora_fim', '>', $horaFormatada);
                             });
                     })
+                    ->orderBy('data_inicio', 'desc') 
                     ->first();
 
                 if ($evento) {
@@ -185,6 +148,7 @@ class PsicologosController extends Controller
                         'slug' => $evento->slug,
                         'evento' => $evento,
                     ];
+
                 } elseif (isset($sessoes[$horario])) {
 
                     $sessoesDisponiveis[] = [

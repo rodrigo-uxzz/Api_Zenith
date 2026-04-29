@@ -16,5 +16,7 @@ class Agenda extends Model
         'hora_inicio',
         'hora_fim',
         'status_agenda',
+        'data_inicio_vigencia',
+        'data_fim_vigencia',
     ];
 }

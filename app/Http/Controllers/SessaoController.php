@@ -145,7 +145,7 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $sessao->anotacoes = $motivo;
+            $sessao->observacoes = $motivo;
 
             $sessao->status_sessao = 'cancelada';
             $sessao->save();
@@ -363,7 +363,7 @@ class SessaoController extends Controller
 
             }
 
-            $sessao->anotacoes = $motivo;
+            $sessao->observacoes = $motivo;
             $sessao->save();
 
             DB::commit();
