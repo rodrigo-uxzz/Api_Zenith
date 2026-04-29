@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Psicologo;
 use App\Models\User;
+use App\Models\Paciente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -45,6 +46,12 @@ class AuthUserController extends Controller
 
                 if ($user->tipo_usuario === 'psicologo' && $user->psicologo->status_psicologo !== 'aprovado') {
                     return response()->json(['error' => 'Aguarde a verificação da conta'], 403);
+                }
+
+                // * Novo - Apenas para o mobile acessar o id_paciente do user.
+                if ($user->tipo_usuario === 'paciente') {
+                    $paciente = Paciente::where('id_usuario', $user->id_usuario)->first();
+                    $user->id_paciente = $paciente?->id_paciente;
                 }
 
                 $token = $user->createToken('auth-token')->plainTextToken;
