@@ -128,8 +128,8 @@ class AgendaController extends Controller
             $psicologo = Psicologo::find($id_psicologo);
 
             $psicologo->update([
-                'duracao_consulta' => $request->duracao_consulta ?? $psicologo->duracao_consulta,
-                'intervalo_consulta' => $request->intervalo_consulta ?? $psicologo->intervalo_consulta,
+                'duracao_consulta' => 50,
+                'intervalo_consulta' => 10,
             ]);
 
             Agenda::where('id_psicologo', $id_psicologo)->delete();
