@@ -9,6 +9,7 @@ use App\Models\Psicologo;
 use App\Models\Sessao;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class PsicologosController extends Controller
 {
@@ -65,7 +66,7 @@ class PsicologosController extends Controller
             $id_psicologo = auth()->user()->psicologo->id_psicologo;
             $data = $request->data;
 
-            $dia_semana = date('w', strtotime($data));
+            $dia_semana = Carbon::parse($data, 'America/Sao_Paulo')->dayOfWeek;
 
             $agendas = Agenda::where('id_psicologo', $id_psicologo)
                 ->where('dia_semana', $dia_semana)
@@ -87,14 +88,26 @@ class PsicologosController extends Controller
 
             foreach ($agendas as $agenda) {
 
-                $hora_inicio = strtotime($agenda->hora_inicio);
-                $hora_fim = strtotime($agenda->hora_fim);
+                $hora_inicio = Carbon::createFromFormat('H:i:s', $agenda->hora_inicio);
+                $hora_fim = Carbon::createFromFormat('H:i:s', $agenda->hora_fim);
 
-                while (($hora_inicio + ($tempoConsulta * 60)) <= $hora_fim) {
-
-                    $horarios[] = date('H:i', $hora_inicio);
-                    $hora_inicio = strtotime("+{$tempoTotal} minutes", $hora_inicio);
+                if (! $hora_inicio || ! $hora_fim || $hora_inicio >= $hora_fim) {
+                    continue;
                 }
+
+                while (true) {
+
+                    $fimConsulta = $hora_inicio->copy()->addMinutes($tempoConsulta);
+
+                    if ($fimConsulta->gt($hora_fim)) {
+                        break;
+                    }
+
+                    $horarios[] = $hora_inicio->format('H:i');
+
+                    $hora_inicio->addMinutes($tempoTotal);
+                }
+
             }
 
             $sessoes = Sessao::where('id_psicologo', $id_psicologo)
@@ -111,7 +124,7 @@ class PsicologosController extends Controller
                 ->get()
                 ->mapWithKeys(function ($sessao) {
                     return [
-                        date('H:i', strtotime($sessao->hora_inicio)) => $sessao,
+                        Carbon::parse($sessao->hora_inicio)->format('H:i') => $sessao,
                     ];
                 });
 
@@ -119,7 +132,7 @@ class PsicologosController extends Controller
 
             foreach ($horarios as $horario) {
 
-                $horaFormatada = date('H:i:s', strtotime($horario));
+                $horaFormatada = Carbon::createFromFormat('H:i', $horario)->format('H:i:s');
 
                 $evento = Evento::where('id_psicologo', $id_psicologo)
                     ->where(function ($q) use ($data) {
@@ -136,7 +149,7 @@ class PsicologosController extends Controller
                                     ->where('hora_fim', '>', $horaFormatada);
                             });
                     })
-                    ->orderBy('data_inicio', 'desc') 
+                    ->orderBy('data_inicio', 'desc')
                     ->first();
 
                 if ($evento) {

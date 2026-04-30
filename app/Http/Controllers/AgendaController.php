@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agenda;
 use App\Models\Evento;
+use App\Models\Psicologo;
 use App\Models\Sessao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -16,7 +17,7 @@ class AgendaController extends Controller
         try {
 
             $data = $request->data;
-            $dia_semana = date('w', strtotime($data));
+            $dia_semana = Carbon::parse($data)->dayOfWeek;
 
             $agendas = Agenda::where('id_psicologo', $id_psicologo)
                 ->where('dia_semana', $dia_semana)
@@ -44,13 +45,13 @@ class AgendaController extends Controller
 
             foreach ($agendas as $agenda) {
 
-                $hora_inicio = strtotime($agenda->hora_inicio);
-                $hora_fim = strtotime($agenda->hora_fim);
+                $hora_inicio = Carbon::createFromFormat('H:i:s', $agenda->hora_inicio);
+                $hora_fim = Carbon::createFromFormat('H:i:s', $agenda->hora_fim);
 
-                while ($hora_inicio + ($tempoConsulta * 60) <= $hora_fim) {
+                while ($hora_inicio->copy()->addMinutes($tempoConsulta)->lte($hora_fim)) {
 
-                    $hora = date('H:i', $hora_inicio);
-                    $horaFormatada = date('H:i:s', strtotime($hora));
+                    $hora = $hora_inicio->format('H:i');
+                    $horaFormatada = Carbon::createFromFormat('H:i', $hora)->format('H:i:s');
 
                     $ocupado = Sessao::where('id_psicologo', $id_psicologo)
                         ->where('data_sessao', $data)
@@ -87,7 +88,7 @@ class AgendaController extends Controller
                         $horarios[] = $hora;
                     }
 
-                    $hora_inicio = strtotime("+{$tempoTotal} minutes", $hora_inicio);
+                    $hora_inicio->addMinutes($tempoTotal);
                 }
             }
 
@@ -133,7 +134,7 @@ class AgendaController extends Controller
                 $dataInicioCarbon = Carbon::parse($ultimaSessao->data_sessao)->addDay();
             } else {
 
-                $dataInicioCarbon = now();
+                $dataInicioCarbon = now()->startOfDay();
             }
 
             $ultimaSessao = Sessao::where('id_psicologo', $id_psicologo)
@@ -155,6 +156,11 @@ class AgendaController extends Controller
                 ->update([
                     'data_fim_vigencia' => $dataInicioCarbon->copy()->subDay()->format('Y-m-d'),
                 ]);
+
+            Psicologo::where('id_psicologo', $id_psicologo)->update([
+                'intervalo_consulta' => 10,
+                'duracao_consulta' => 50,
+            ]);
 
             foreach ($request->agendas as $agenda) {
                 Agenda::create([

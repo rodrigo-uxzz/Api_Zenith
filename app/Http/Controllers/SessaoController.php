@@ -54,7 +54,9 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $hora_fim = date('H:i', strtotime('+50 minutes', strtotime($hora_inicio)));
+            $hora_fim = Carbon::createFromFormat('H:i:s', $hora_inicio)
+                ->addMinutes(50)
+                ->format('H:i:s');
 
             Sessao::create([
                 'id_psicologo' => $id_psicologo,
@@ -214,7 +216,9 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $hora_fim = date('H:i', strtotime('+50 minutes', strtotime($nova_hora)));
+            $hora_fim = Carbon::createFromFormat('H:i', $nova_hora)
+                ->addMinutes(50)
+                ->format('H:i');
 
             $sessao->update([
                 'data_sessao' => $nova_data,
@@ -295,8 +299,9 @@ class SessaoController extends Controller
 
                 $sessao->data_sessao = $sessao->data_solicitada;
                 $sessao->hora_inicio = $sessao->hora_solicitada;
-                $sessao->hora_fim = date('H:i', strtotime('+50 minutes', strtotime($sessao->hora_solicitada)));
-
+                $sessao->hora_fim = Carbon::createFromFormat('H:i', $sessao->hora_solicitada)
+                    ->addMinutes(50)
+                    ->format('H:i');
                 $sessao->data_solicitada = null;
                 $sessao->hora_solicitada = null;
 
