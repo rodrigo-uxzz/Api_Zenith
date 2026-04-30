@@ -66,7 +66,7 @@ class PsicologosController extends Controller
             $id_psicologo = auth()->user()->psicologo->id_psicologo;
             $data = $request->data;
 
-            $dia_semana = Carbon::parse($data, 'America/Sao_Paulo')->dayOfWeek;
+            $dia_semana = Carbon::parse($data)->dayOfWeek;
 
             $agendas = Agenda::where('id_psicologo', $id_psicologo)
                 ->where('dia_semana', $dia_semana)
@@ -88,8 +88,8 @@ class PsicologosController extends Controller
 
             foreach ($agendas as $agenda) {
 
-                $hora_inicio = Carbon::createFromFormat('H:i:s', $agenda->hora_inicio);
-                $hora_fim = Carbon::createFromFormat('H:i:s', $agenda->hora_fim);
+                $hora_inicio = Carbon::parse($agenda->hora_inicio);
+                $hora_fim = Carbon::parse($agenda->hora_fim);
 
                 if (! $hora_inicio || ! $hora_fim || $hora_inicio >= $hora_fim) {
                     continue;

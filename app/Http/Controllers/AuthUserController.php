@@ -222,6 +222,13 @@ class AuthUserController extends Controller
             $user = $request->user();
             $user->status_usuario = 'excluido';
 
+            if($user->tipo_usuario === 'paciente'){
+                
+
+            }elseif($user->tipo_usuario === 'psicologo'){
+
+            }
+
             $user->save();
 
             DB::commit();
