@@ -299,9 +299,8 @@ class SessaoController extends Controller
 
                 $sessao->data_sessao = $sessao->data_solicitada;
                 $sessao->hora_inicio = $sessao->hora_solicitada;
-                $sessao->hora_fim = Carbon::createFromFormat('H:i', $sessao->hora_solicitada)
-                    ->addMinutes(50)
-                    ->format('H:i');
+                $sessao->hora_fim = date('H:i', strtotime('+50 minutes', strtotime($sessao->hora_solicitada)));
+
                 $sessao->data_solicitada = null;
                 $sessao->hora_solicitada = null;
 

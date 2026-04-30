@@ -114,7 +114,7 @@ class UsersController extends Controller
                 'cpf' => $validatedData['cpf'],
                 'tipo_usuario' => 'paciente',
                 'status_usuario' => 'ativo',
-                'termos_aceitos' => $validatedData['termos'],
+                'termos_aceitos' => filter_var($request->termos, FILTER_VALIDATE_BOOLEAN),
                 'foto_perfil' => $fotoPerfil,
 
             ]);
