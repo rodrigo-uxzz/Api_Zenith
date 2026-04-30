@@ -224,11 +224,15 @@ class AuthUserController extends Controller
     public function excluirPerfil(Request $request)
     {
         try {
-            DB::transaction();
+            DB::beginTransaction();
 
             $user = $request->user();
-            $user->status_usuario = 'excluido';
 
+            if (!$user) {
+                throw new \Exception('Usuário não autenticado');
+            }
+
+            $user->status_usuario = 'excluido';
             $user->save();
 
             DB::commit();
@@ -244,7 +248,6 @@ class AuthUserController extends Controller
                 'error' => 'Erro ao excluir perfil',
                 'details' => $e->getMessage(),
             ], 500);
-
         }
     }
 }
