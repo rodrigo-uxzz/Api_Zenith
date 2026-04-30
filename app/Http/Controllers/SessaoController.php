@@ -54,7 +54,7 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $hora_fim = Carbon::createFromFormat('H:i:s', $hora_inicio)
+            $hora_fim = Carbon::parse($hora_inicio)
                 ->addMinutes(50)
                 ->format('H:i:s');
 
