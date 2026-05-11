@@ -43,7 +43,7 @@ class AdminDashboardController extends Controller
                 ->get();
 
             // GRÁFICO - SESSÕES (agendadas vs realizadas)
-            $sessoes_por_mes = Sessao::select(
+            $sessoes = Sessao::select(
                 DB::raw('MONTH(data_sessao) as mes'),
                 DB::raw("SUM(CASE WHEN status_sessao = 'agendada' THEN 1 ELSE 0 END) as agendadas"),
                 DB::raw("SUM(CASE WHEN status_sessao = 'realizada' THEN 1 ELSE 0 END) as realizadas")
@@ -52,15 +52,37 @@ class AdminDashboardController extends Controller
                 ->orderBy('mes')
                 ->get();
 
+            $sessoes_por_mes = collect(range(1, 12))->map(function ($mes) use ($sessoes) {
+
+                $item = $sessoes->firstWhere('mes', $mes);
+
+                return [
+                    'mes' => $mes,
+                    'agendadas' => $item ? $item->agendadas : 0,
+                    'realizadas' => $item ? $item->realizadas : 0,
+                ];
+            });
+            
             // GRÁFICO - FATURAMENTO
-            $faturamento_mensal = Sessao::select(
+            $faturamento = Sessao::select(
                 DB::raw('MONTH(data_sessao) as mes'),
                 DB::raw('SUM(valor) as total')
             )
                 ->where('status_sessao', 'realizada')
+                ->whereYear('data_sessao', now()->year)
                 ->groupBy('mes')
                 ->orderBy('mes')
                 ->get();
+
+            $faturamento_mensal = collect(range(1, 12))->map(function ($mes) use ($faturamento) {
+
+                $item = $faturamento->firstWhere('mes', $mes);
+
+                return [
+                    'mes' => $mes,
+                    'total' => $item ? $item->total : 0,
+                ];
+            });
 
             return response()->json([
                 'cards' => [

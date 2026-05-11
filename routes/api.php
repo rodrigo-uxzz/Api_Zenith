@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthAdminsController;
 use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PsicologosController;
+use App\Http\Controllers\PsicologoDashboardController;  
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\SessaoController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/consultasDoDia', [PsicologosController::class, 'consultasDoDia']);
     Route::get('/sessoesPendentes', [PsicologosController::class, 'sessoesPendentes']);
     Route::get('/psicologoHistorico', [PsicologosController::class, 'historicoSessoes']);
+    Route::get('/dahsBoardPsicologo', [PsicologoDashboardController::class, 'dashboard']);
 });
 
 // Rotas Agenda
