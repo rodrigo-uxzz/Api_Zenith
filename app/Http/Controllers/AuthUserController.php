@@ -15,7 +15,6 @@ class AuthUserController extends Controller
 {
     public function login(Request $request)
     {
-
         try {
 
             $credenciais = $request->validate([
@@ -25,37 +24,70 @@ class AuthUserController extends Controller
 
             $user = User::where('email', $credenciais['login'])->first();
 
+            if (! $user) {
+                $psicologo = Psicologo::where('crp', $credenciais['login'])->first();
+                if ($psicologo) {
+                    $user = User::find($psicologo->id_usuario);
+                }
+            }
+
+            if (! $user) {
+                return response()->json([
+                    'error' => 'Credenciais inválidas',
+                ], 401);
+            }
+
+            if (! Hash::check($credenciais['senha'], $user->senha_hash)) {
+                return response()->json([
+                    'error' => 'Credenciais inválidas',
+                ], 401);
+            }
+
             if ($user->status_usuario !== 'ativo') {
                 return response()->json([
-                    'error' => 'usuario desativado',
+                    'error' => 'Usuário desativado',
                 ], 403);
-            } else {
-
-                if (! $user) {
-                    $psicologo = Psicologo::where('crp', $credenciais['login'])->first();
-
-                    if ($psicologo) {
-                        $user = User::find($psicologo->id_usuario);
-                    }
-                }
-
-                if (! $user || ! Hash::check($credenciais['senha'], $user->senha_hash)) {
-                    return response()->json(['error' => 'Credenciais inválidas'], 401);
-                }
-
-                if ($user->tipo_usuario === 'psicologo' && $user->psicologo->status_psicologo !== 'aprovado') {
-                    return response()->json(['error' => 'Aguarde a verificação da conta'], 403);
-                }
-
-                $token = $user->createToken('auth-token')->plainTextToken;
-
-                return response()->json([
-                    'message' => 'Login realizado com sucesso',
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                    'user' => $user,
-                ], 200);
             }
+
+
+            if ($user->tipo_usuario === 'psicologo' && $user->psicologo) {
+
+                $status = $user->psicologo->status_psicologo;
+
+                if ($status === 'pendente') {
+                    return response()->json([
+                        'error' => 'Aguarde a verificação da conta',
+                    ], 403);
+                }
+
+                if ($status === 'recusado') {
+                    return response()->json([
+                        'error' => 'Cadastro não aprovado',
+                    ], 403);
+                }
+
+                if ($status === 'bloqueado') {
+                    return response()->json([
+                        'error' => 'Conta bloqueada',
+                    ], 403);
+                }
+
+                if ($status === 'excluido') {
+                    return response()->json([
+                        'error' => 'Conta removida',
+                    ], 403);
+                }
+            }
+
+
+            $token = $user->createToken('auth-token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login realizado com sucesso',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user,
+            ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -222,10 +254,9 @@ class AuthUserController extends Controller
             $user = $request->user();
             $user->status_usuario = 'excluido';
 
-            if($user->tipo_usuario === 'paciente'){
-                
+            if ($user->tipo_usuario === 'paciente') {
 
-            }elseif($user->tipo_usuario === 'psicologo'){
+            } elseif ($user->tipo_usuario === 'psicologo') {
 
             }
 

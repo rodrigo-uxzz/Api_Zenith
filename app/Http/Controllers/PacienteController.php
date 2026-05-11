@@ -14,7 +14,7 @@ class PacienteController extends Controller
     {
 
         try{
-            $psicolgo = Psicologo::where('id_usuario', $id)
+            $psicologo = Psicologo::where('id_usuario', $id)
             ->where('status_psicologo', 'aprovado')
             ->with([
                 'abordagens',
@@ -23,17 +23,17 @@ class PacienteController extends Controller
             ])
             ->first();
 
-            if (!$psicolgo) {
+            if (!$psicologo) {
                 return response()->json([
                     'error' => 'Psicólogo não encontrado'
                 ], 404);
             }
 
-            $user = User::find($psicolgo->id_usuario);
+            $user = User::find($psicologo->id_usuario);
 
             return response()->json([
                 'user' => $user,
-                'psicologo' => $psicolgo
+                'psicologo' => $psicologo
             ], 200);
 
         }catch(\Exception $e){

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pagamento;
 use App\Models\Sessao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -58,13 +59,21 @@ class SessaoController extends Controller
                 ->addMinutes(50)
                 ->format('H:i:s');
 
-            Sessao::create([
+            $sessao = Sessao::create([
                 'id_psicologo' => $id_psicologo,
                 'id_paciente' => $id_paciente,
                 'data_sessao' => $data_sessao,
                 'hora_inicio' => $hora_inicio,
                 'hora_fim' => $hora_fim,
                 'status_sessao' => 'pendente',
+            ]);
+
+            $pagamento = Pagamento::create([
+                'id_sessao' => $sessao->id_sessao,
+                'id_paciente' => $id_paciente,
+                'id_psicologo' => $id_psicologo,
+                'valor_total' => 100,
+                'status_pagamento' => 'pendente',
             ]);
 
             DB::commit();
