@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Psicologo;
 use App\Models\User;
+use App\Models\Paciente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
