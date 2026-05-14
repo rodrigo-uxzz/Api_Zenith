@@ -16,8 +16,9 @@ class SessaoController extends Controller
 
         try {
 
+            $id_paciente = auth()->user()->paciente->id_paciente;
+
             $id_psicologo = $request->id_psicologo;
-            $id_paciente = $request->id_paciente;
             $data_sessao = $request->data_sessao;
             $hora_inicio = $request->hora_inicio;
 
@@ -303,6 +304,7 @@ class SessaoController extends Controller
             } elseif ($sessao->status_sessao === 'cancelamento_solicitado') {
 
                 $sessao->status_sessao = 'cancelada';
+                $sessao->observacoes = null;
 
             } elseif ($sessao->status_sessao === 'reagendamento_solicitado') {
 
