@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Psicologo;
 use App\Models\User;
-use App\Models\Paciente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +49,6 @@ class AuthUserController extends Controller
                 ], 403);
             }
 
-
             if ($user->tipo_usuario === 'psicologo' && $user->psicologo) {
 
                 $status = $user->psicologo->status_psicologo;
@@ -79,7 +77,6 @@ class AuthUserController extends Controller
                     ], 403);
                 }
             }
-
 
             $token = $user->createToken('auth-token')->plainTextToken;
 
@@ -132,38 +129,61 @@ class AuthUserController extends Controller
         }
     }
 
-    public function verificarUserCPF(Request $request) // *O certo é "verificar Disponibilidade" mas eu prefiro assim!
+    public function verificarCPF(Request $request)
     {
         try {
 
-            $dados = $request->validate([
-                'username' => 'string|required_without:cpf',
-                'cpf' => 'string|required_without:username',
+            $request->validate([
+                'cpf' => 'required|string',
             ]);
 
-            $usernameExiste = false;
-            $cpfExiste = false;
+            $cpf = preg_replace('/\D/', '', $request->cpf);
 
-            if (! empty($dados['username'])) {
-                $usernameExiste = User::where('username', $dados['username'])->exists();
+            // verifica validade matemática
+            if (! $this->validarCPF($cpf)) {
+
+                return response()->json([
+                    'error' => 'CPF inválido',
+                ], 400);
             }
 
-            if (! empty($dados['cpf'])) {
-
-                // remove máscara do CPF
-                $cpf = preg_replace('/\D/', '', $dados['cpf']);
-
-                $cpfExiste = User::where('cpf', $cpf)->exists();
-            }
+            // verifica se já existe
+            $cpfExiste = User::where('cpf', $cpf)->exists();
 
             return response()->json([
-                'username_disponivel' => ! $usernameExiste,
                 'cpf_disponivel' => ! $cpfExiste,
             ], 200);
 
         } catch (\Exception $e) {
+
             return response()->json([
-                'error' => 'Erro ao verificar disponibilidade',
+                'error' => 'Erro ao verificar CPF',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verificarUsername(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'username' => 'required|string',
+            ]);
+
+            $usernameExiste = User::where(
+                'username',
+                $request->username
+            )->exists();
+
+            return response()->json([
+                'username_disponivel' => ! $usernameExiste,
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => 'Erro ao verificar username',
                 'details' => $e->getMessage(),
             ], 500);
         }
@@ -250,7 +270,7 @@ class AuthUserController extends Controller
     public function excluirPerfil(Request $request)
     {
         try {
-            DB::transaction();
+            DB::beginTransaction();
 
             $user = $request->user();
             $user->status_usuario = 'excluido';
@@ -278,5 +298,39 @@ class AuthUserController extends Controller
             ], 500);
 
         }
+    }
+
+    private function validarCPF($cpf)
+    {
+        // remove tudo que não é número
+        $cpf = preg_replace('/[^0-9]/is', '', $cpf);
+
+        // tamanho inválido
+        if (strlen($cpf) != 11) {
+            return false;
+        }
+
+        // números repetidos
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
+            return false;
+        }
+
+        // valida dígitos verificadores
+        for ($t = 9; $t < 11; $t++) {
+
+            $d = 0;
+
+            for ($c = 0; $c < $t; $c++) {
+                $d += $cpf[$c] * (($t + 1) - $c);
+            }
+
+            $d = ((10 * $d) % 11) % 10;
+
+            if ($cpf[$c] != $d) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

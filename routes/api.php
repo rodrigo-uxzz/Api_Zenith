@@ -6,17 +6,18 @@ use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\AuthAdminsController;
 use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\PsicologoDashboardController;
 use App\Http\Controllers\PsicologosController;
-use App\Http\Controllers\PsicologoDashboardController;  
-use App\Http\Controllers\UsersController;
 use App\Http\Controllers\SessaoController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/registerPsicologo', [UsersController::class, 'cadastroPsicologo']);
 Route::post('/registerPaciente', [UsersController::class, 'cadastroPaciente']);
 Route::post('/login', [AuthUserController::class, 'login']);
 Route::post('/loginAdmin', [AuthAdminsController::class, 'login']);
-Route::post('/verificarUserCPF', [AuthUserController::class, 'verificarUserCPF']);
+Route::post('/verificarUserCPF', [AuthUserController::class, 'verificarCPF']);
+Route::post('/verificarUsername', [AuthUserController::class, 'verificarUsername']);
 
 // Rotas usuarios
 Route::middleware('auth:sanctum')->group(function () {
@@ -52,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/configurarAgenda', [AgendaController::class, 'configurarAgenda']);
 });
 
-//Rotas Sessão
+// Rotas Sessão
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/agendarSessao', [SessaoController::class, 'agendarSessao']);
     Route::post('/sessaoRealizada/{id_sessao}', [SessaoController::class, 'sessaoRealizada']);
@@ -66,7 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
-//Rotas Admin
+// Rotas Admin
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logoutAdmin', [AuthAdminsController::class, 'logout']);
     Route::get('/psicologos', [AdminController::class, 'listarPsicologos']);

@@ -17,6 +17,7 @@ class Psicologo extends Authenticatable
         'grau_formacao',
         'biografia',
         'status_psicologo',
+        'preco_sessao',
         'duracao_consulta',
         'intervalo_consulta',
         'avaliacao',

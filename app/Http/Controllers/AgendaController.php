@@ -108,8 +108,13 @@ class AgendaController extends Controller
 
         try {
 
-            $id_psicologo = auth()->user()->psicologo->id_psicologo;
+            $psicologo = auth()->user()->psicologo;
 
+            $psicologo->preco_sessao = $request->preco_sessao;
+            $psicologo->save();
+
+            $id_psicologo = $psicologo->id_psicologo;
+            
             $request->validate([
                 'agendas' => 'required|array|min:1',
                 'agendas.*.dia_semana' => 'required|integer|min:0|max:6',

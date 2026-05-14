@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Pagamento;
 use App\Models\Sessao;
+use App\Models\Psicologo;
+use App\Models\Paciente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +23,8 @@ class SessaoController extends Controller
             $id_psicologo = $request->id_psicologo;
             $data_sessao = $request->data_sessao;
             $hora_inicio = $request->hora_inicio;
+
+            $psicologo = Psicologo::find($request->id_psicologo);
 
             $ocupado = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data_sessao)
@@ -67,6 +71,7 @@ class SessaoController extends Controller
                 'hora_inicio' => $hora_inicio,
                 'hora_fim' => $hora_fim,
                 'status_sessao' => 'pendente',
+                'valor' => $psicologo->preco_sessao,
             ]);
 
             $pagamento = Pagamento::create([
