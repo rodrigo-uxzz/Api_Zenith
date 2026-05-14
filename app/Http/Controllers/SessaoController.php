@@ -17,7 +17,7 @@ class SessaoController extends Controller
         try {
 
             $id_psicologo = $request->id_psicologo;
-            $id_paciente = $request->id_paciente;
+            $id_paciente = auth()->user()->paciente->id_paciente;
             $data_sessao = $request->data_sessao;
             $hora_inicio = $request->hora_inicio;
 
@@ -397,7 +397,7 @@ class SessaoController extends Controller
 
     }
 
-    public function solicitarCancelamento($id_sessao)
+    public function solicitarCancelamento(Request $request, $id_sessao)
     {
 
         DB::beginTransaction();
@@ -412,6 +412,13 @@ class SessaoController extends Controller
             }
 
             $id_paciente = auth()->user()->paciente->id_paciente;
+            $motivo = $request->motivo;
+
+            if (!$motivo) {
+                return response()->json([
+                    'error' => 'O motivo é obrigatório',
+                ], 400);
+            }
 
             if ($sessao->id_paciente != $id_paciente) {
                 return response()->json([
@@ -426,6 +433,7 @@ class SessaoController extends Controller
             }
 
             $sessao->status_sessao = 'cancelamento_solicitado';
+            $sessao->observacoes = $motivo;
             $sessao->save();
 
             DB::commit();
