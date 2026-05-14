@@ -399,7 +399,7 @@ class SessaoController extends Controller
 
     }
 
-    public function solicitarCancelamento($id_sessao)
+    public function solicitarCancelamento(Request $request, $id_sessao)
     {
 
         DB::beginTransaction();
@@ -414,6 +414,13 @@ class SessaoController extends Controller
             }
 
             $id_paciente = auth()->user()->paciente->id_paciente;
+            $motivo = $request->motivo;
+
+            if (!$motivo) {
+                return response()->json([
+                    'error' => 'O motivo é obrigatório',
+                ], 400);
+            }
 
             if ($sessao->id_paciente != $id_paciente) {
                 return response()->json([
@@ -428,6 +435,7 @@ class SessaoController extends Controller
             }
 
             $sessao->status_sessao = 'cancelamento_solicitado';
+            $sessao->observacoes = $motivo;
             $sessao->save();
 
             DB::commit();
