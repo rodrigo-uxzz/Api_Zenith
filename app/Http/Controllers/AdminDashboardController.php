@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Psicologo;
 use App\Models\Sessao;
 use App\Models\User;
+use App\Models\Pagamento;
 use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
@@ -22,7 +23,7 @@ class AdminDashboardController extends Controller
 
             $psicologos_pendentes = Psicologo::where('status_psicologo', 'pendente')->count();
 
-            $receita_total = Sessao::where('status_sessao', 'realizada')->sum('valor');
+            $receita_total = Pagamento::where('status_pagamento', 'pago')->sum('valor_total');
 
             // GRÁFICO - USUÁRIOS POR MÊS
             $usuarios_por_mes = User::select(
@@ -62,14 +63,14 @@ class AdminDashboardController extends Controller
                     'realizadas' => $item ? $item->realizadas : 0,
                 ];
             });
-            
+
             // GRÁFICO - FATURAMENTO
-            $faturamento = Sessao::select(
-                DB::raw('MONTH(data_sessao) as mes'),
-                DB::raw('SUM(valor) as total')
+            $faturamento = Pagamento::select(
+                DB::raw('MONTH(created_at) as mes'),
+                DB::raw('SUM(valor_total) as total')
             )
-                ->where('status_sessao', 'realizada')
-                ->whereYear('data_sessao', now()->year)
+                ->where('status_pagamento', 'pago')
+                ->whereYear('created_at', now()->year)
                 ->groupBy('mes')
                 ->orderBy('mes')
                 ->get();

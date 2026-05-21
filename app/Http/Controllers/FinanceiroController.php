@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pagamento;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class FinanceiroController extends Controller
 {
@@ -19,32 +19,38 @@ class FinanceiroController extends Controller
 
             $idPsicologo = auth()->user()->psicologo->id_psicologo;
 
-            $pendentes = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo) {
-                $query->where('id_psicologo', $idPsicologo);
+            $pendentes = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $data) {
+
+                $query->where('id_psicologo', $idPsicologo)
+                    ->whereDate('data_sessao', $data);
+
             })
                 ->where('status_pagamento', 'pendente')
-                ->whereDate('created_at', $data)
                 ->count();
 
-            $pagas = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo) {
-                $query->where('id_psicologo', $idPsicologo);
+            $pagas = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $data) {
+
+                $query->where('id_psicologo', $idPsicologo)
+                    ->whereDate('data_sessao', $data);
+
             })
                 ->where('status_pagamento', 'pago')
-                ->whereDate('created_at', $data)
                 ->count();
 
-            $faturamento = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo) {
-                $query->where('id_psicologo', $idPsicologo);
+            $faturamento = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $data) {
+
+                $query->where('id_psicologo', $idPsicologo)
+                    ->whereDate('data_sessao', $data);
+
             })
                 ->where('status_pagamento', 'pago')
-                ->whereDate('created_at', $data)
                 ->sum('valor_total');
 
             $faturamento_mensal = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo) {
                 $query->where('id_psicologo', $idPsicologo);
             })
                 ->where('status_pagamento', 'pago')
-                ->whereMonth('created_at', $dataCarbon->month )
+                ->whereMonth('created_at', $dataCarbon->month)
                 ->whereYear('created_at', $dataCarbon->year)
                 ->sum('valor_total');
 
@@ -75,10 +81,12 @@ class FinanceiroController extends Controller
             $idPsicologo = auth()->user()->psicologo->id_psicologo;
 
             $pagamentos = Pagamento::with('paciente.usuario', 'sessao')
-                ->whereHas('sessao', function ($query) use ($idPsicologo) {
-                    $query->where('id_psicologo', $idPsicologo);
+                ->whereHas('sessao', function ($query) use ($idPsicologo, $data) {
+
+                    $query->where('id_psicologo', $idPsicologo)
+                        ->whereDate('data_sessao', $data);
+
                 })
-                ->whereDate('created_at', $data)
                 ->orderBy('created_at', 'desc')
                 ->get();
 

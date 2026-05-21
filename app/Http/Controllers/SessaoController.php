@@ -78,7 +78,7 @@ class SessaoController extends Controller
                 'id_sessao' => $sessao->id_sessao,
                 'id_paciente' => $id_paciente,
                 'id_psicologo' => $id_psicologo,
-                'valor_total' => 100,
+                'valor_total' => $psicologo->preco_sessao,
                 'status_pagamento' => 'pendente',
             ]);
 
@@ -265,7 +265,7 @@ class SessaoController extends Controller
                 ->with('psicologo.usuario')
                 ->first();
 
-            return response()->json([
+            return response()->json([   
                 'sessao' => $sessao,
             ]);
 

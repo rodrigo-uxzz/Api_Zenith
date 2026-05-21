@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pagamento;
 use App\Models\Sessao;
 use Illuminate\Support\Facades\DB;
 
@@ -31,18 +32,22 @@ class PsicologoDashboardController extends Controller
                 ->whereDate('data_sessao', now())
                 ->count();
 
-            $faturamentoTotal = Sessao::where('id_psicologo', $id_psicologo)
-                ->where('status_sessao', 'realizada')
-                ->sum('valor');
+            $faturamentoTotal = Pagamento::where('id_psicologo', $id_psicologo)
+                ->where('status_pagamento', 'pago')
+                ->sum('valor_total');
 
             // GRÁFICO - FATURAMENTO
-            $faturamento = Sessao::select(
-                DB::raw('MONTH(data_sessao) as mes'),
-                DB::raw('SUM(valor) as total')
+            $faturamento = Pagamento::select(
+                DB::raw('MONTH(created_at) as mes'),
+                DB::raw('SUM(valor_total) as total')
             )
-                ->where('id_psicologo', $id_psicologo)
-                ->where('status_sessao', 'realizada')
-                ->whereYear('data_sessao', now()->year)
+                ->whereHas('sessao', function ($query) use ($id_psicologo) {
+
+                    $query->where('id_psicologo', $id_psicologo);
+
+                })
+                ->where('status_pagamento', 'pago')
+                ->whereYear('created_at', now()->year)
                 ->groupBy('mes')
                 ->orderBy('mes')
                 ->get();
