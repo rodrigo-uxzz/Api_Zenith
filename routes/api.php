@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\AuthAdminsController;
 use App\Http\Controllers\AuthUserController;
+use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PsicologoDashboardController;
 use App\Http\Controllers\PsicologosController;
@@ -77,4 +78,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/aprovarPsicologo/{id_psicologo}', [AdminController::class, 'aprovarPsicologo']);
     Route::post('/rejeitarPsicologo/{id_psicologo}', [AdminController::class, 'rejeitarPsicologo']);
     Route::get('/dashboard', [AdminDashboardController::class, 'dashboard']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/dashboardFinanceiro',[FinanceiroController::class,'dashboardFinanceiro']);
+    Route::get('/listarPagamentos',[FinanceiroController::class,'listarPagamentos']);
+    Route::get('/detalhesPagamento/{id}',[FinanceiroController::class,'detalhesPagamento']);
+    Route::post('/marcarComoPago/{id}',[FinanceiroController::class,'marcarComoPago']);
+
 });

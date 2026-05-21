@@ -20,7 +20,7 @@ class Pagamento extends Model
         'status_pagamento',
         'valor_total',
     ];
-    
+
     public function sessao()
     {
         return $this->belongsTo(Sessao::class, 'id_sessao');
