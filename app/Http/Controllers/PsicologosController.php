@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agenda;
+use App\Models\Especialidade;
 use App\Models\Evento;
 use App\Models\Paciente;
 use App\Models\Psicologo;
@@ -10,6 +11,7 @@ use App\Models\Sessao;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PsicologosController extends Controller
 {
@@ -262,6 +264,81 @@ class PsicologosController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao buscar histótico de sessões',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateEspecialidades(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $request->validate([
+                'especialidade_ids' => 'required|array',
+                'especialidade_ids.*' => 'exists:especialidades,id_especialidade',
+            ]);
+
+            $user = auth()->user();
+
+            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)->firstOrFail();
+
+            $psicologo->especialidades()->sync($request->especialidade_ids);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Especialidades atualizadas com sucesso',
+                'especialidades' => $psicologo->especialidades,
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao atualizar especialidades',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getEspecialidade()
+    {
+        try {
+
+            $user = auth()->user();
+
+            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)
+                ->with('especialidades')
+                ->firstOrFail();
+
+            return response()->json(
+                $psicologo->especialidades
+            );
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => 'Erro ao buscar especialidades',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getEspecialidades()
+    {
+        try {
+
+            $especialidades = Especialidade::all();
+
+            return response()->json($especialidades);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => 'Erro ao buscar especialidades',
                 'message' => $e->getMessage(),
             ], 500);
         }

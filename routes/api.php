@@ -45,6 +45,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sessoesPendentes', [PsicologosController::class, 'sessoesPendentes']);
     Route::get('/psicologoHistorico', [PsicologosController::class, 'historicoSessoes']);
     Route::get('/dahsBoardPsicologo', [PsicologoDashboardController::class, 'dashboard']);
+    Route::post('/psicologos/especialidades', [PsicologosController::class, 'updateEspecialidades']);
+    Route::get('/psicologos/especialidades', [PsicologosController::class, 'getEspecialidade']);
+    Route::get('/especialidades', [PsicologosController::class, 'getEspecialidades']);
+
 });
 
 // Rotas Agenda
@@ -82,9 +86,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/dashboardFinanceiro',[FinanceiroController::class,'dashboardFinanceiro']);
-    Route::get('/listarPagamentos',[FinanceiroController::class,'listarPagamentos']);
-    Route::get('/detalhesPagamento/{id}',[FinanceiroController::class,'detalhesPagamento']);
-    Route::post('/marcarComoPago/{id}',[FinanceiroController::class,'marcarComoPago']);
+    Route::get('/dashboardFinanceiro', [FinanceiroController::class, 'dashboardFinanceiro']);
+    Route::get('/listarPagamentos', [FinanceiroController::class, 'listarPagamentos']);
+    Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
+    Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
 
 });

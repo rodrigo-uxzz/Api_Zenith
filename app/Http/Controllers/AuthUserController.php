@@ -114,7 +114,9 @@ class AuthUserController extends Controller
         try {
 
             $user = $request->user();
-            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)->first();
+            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)
+                ->with('especialidades')
+                ->first();
 
             return response()->json([
                 'user' => $user,
@@ -227,29 +229,64 @@ class AuthUserController extends Controller
                 'biografia' => 'sometimes|string|max:255',
                 'foto_perfil' => 'sometimes|image|mimes:jpg,jpeg,png|max:5120',
 
+                // 👇 ADICIONA ISSO
+                'especialidade_ids' => 'sometimes|array',
+                'especialidade_ids.*' => 'exists:especialidades,id_especialidade',
             ]);
 
+            // FOTO
             if ($request->hasFile('foto_perfil')) {
 
                 if ($user->foto_perfil) {
                     Storage::disk('public')->delete($user->foto_perfil);
                 }
 
-                $fotoPerfil = $request->file('foto_perfil')->store('fotos', 'public');
+                $fotoPerfil = $request
+                    ->file('foto_perfil')
+                    ->store('fotos', 'public');
+
                 $dados['foto_perfil'] = $fotoPerfil;
             }
 
+            // SENHA
             if (isset($dados['senha'])) {
+
                 $dados['senha_hash'] = Hash::make($dados['senha']);
+
                 unset($dados['senha']);
             }
 
+            // REMOVE especialidade_ids do update do user
+            $especialidades = $dados['especialidade_ids'] ?? null;
+
+            unset($dados['especialidade_ids']);
+
+            // UPDATE USER
             $user->update($dados);
 
-            if ($user->tipo_usuario === 'psicologo' && isset($dados['biografia'])) {
-                $user->psicologo()->update([
-                    'biografia' => $dados['biografia'],
-                ]);
+            // UPDATE PSICOLOGO
+            if ($user->tipo_usuario === 'psicologo') {
+
+                $psicologo = Psicologo::where(
+                    'id_usuario',
+                    $user->id_usuario
+                )->first();
+
+                // BIOGRAFIA
+                if (isset($dados['biografia'])) {
+
+                    $psicologo->update([
+                        'biografia' => $dados['biografia'],
+                    ]);
+                }
+
+                // 👇 SINCRONIZA ESPECIALIDADES
+                if ($especialidades) {
+
+                    $psicologo->especialidades()->sync(
+                        $especialidades
+                    );
+                }
             }
 
             return response()->json([
@@ -263,7 +300,6 @@ class AuthUserController extends Controller
                 'error' => 'Erro ao atualizar perfil',
                 'details' => $e->getMessage(),
             ], 500);
-
         }
     }
 
