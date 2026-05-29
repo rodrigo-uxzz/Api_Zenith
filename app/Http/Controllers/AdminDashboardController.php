@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Psicologo;
 use App\Models\Sessao;
 use App\Models\User;
+use App\Models\Paciente;
 use App\Models\Pagamento;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +16,7 @@ class AdminDashboardController extends Controller
         try {
 
             //  CARDS
-            $usuarios_total = User::count();
+            $usuarios_total = Paciente::count();
 
             $psicologos_total = Psicologo::count();
 

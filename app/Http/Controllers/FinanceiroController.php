@@ -84,7 +84,9 @@ class FinanceiroController extends Controller
                 ->whereHas('sessao', function ($query) use ($idPsicologo, $data) {
 
                     $query->where('id_psicologo', $idPsicologo)
-                        ->whereDate('data_sessao', $data);
+                        ->whereDate('data_sessao', $data)
+                        ->where('status_sessao', '!=', 'cancelada')
+                        ->where('status_sessao', '!=', 'recusada');
 
                 })
                 ->orderBy('created_at', 'desc')

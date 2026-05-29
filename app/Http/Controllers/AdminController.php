@@ -47,7 +47,7 @@ class AdminController extends Controller
                 'abordagens',
                 'especialidades',
                 'atendimentos',
-            ])->paginate(10);
+            ])->get();
 
             return response()->json([
                 'psicologos' => $psicologos,

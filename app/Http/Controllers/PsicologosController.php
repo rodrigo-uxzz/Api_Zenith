@@ -312,7 +312,7 @@ class PsicologosController extends Controller
 
             $psicologo = Psicologo::where('id_usuario', $user->id_usuario)
                 ->with('especialidades')
-                ->firstOrFail();
+                ->get();
 
             return response()->json(
                 $psicologo->especialidades
