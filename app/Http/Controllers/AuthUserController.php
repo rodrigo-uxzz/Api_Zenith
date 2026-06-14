@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-// A Função de verificarUserCPF
 use Illuminate\Support\Facades\Storage;
 
 class AuthUserController extends Controller

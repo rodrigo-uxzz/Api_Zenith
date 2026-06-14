@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Paciente;
 use App\Models\Psicologo;
-use App\Models\User;
+use App\Mail\ContaAprovadaMail;
+use App\Mail\ContaReprovadaMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
@@ -21,7 +23,7 @@ class AdminController extends Controller
                 'atendimentos',
             ])->find($id_psicologo);
 
-            if (!$psicologo) {
+            if (! $psicologo) {
                 return response()->json([
                     'error' => 'Psicólogo não encontrado',
                 ], 404);
@@ -68,7 +70,7 @@ class AdminController extends Controller
         try {
             $psicologo = Psicologo::find($id_psicologo);
 
-            if (!$psicologo) {
+            if (! $psicologo) {
                 return response()->json([
                     'error' => 'Psicólogo não encontrado',
                 ], 404);
@@ -84,6 +86,8 @@ class AdminController extends Controller
             $psicologo->save();
 
             DB::commit();
+
+            Mail::to($psicologo->usuario->email)->send(new ContaAprovadaMail($psicologo->usuario->nome));
 
             return response()->json([
                 'message' => 'Psicólogo aprovado com sucesso',
@@ -106,7 +110,7 @@ class AdminController extends Controller
         try {
             $psicologo = Psicologo::find($id_psicologo);
 
-            if (!$psicologo) {
+            if (! $psicologo) {
                 return response()->json([
                     'error' => 'Psicólogo não encontrado',
                 ], 404);
@@ -122,6 +126,8 @@ class AdminController extends Controller
             $psicologo->save();
 
             DB::commit();
+
+            Mail::to($psicologo->usuario->email)->send(new ContaReprovadaMail($psicologo->usuario->nome));
 
             return response()->json([
                 'message' => 'Psicólogo recusado com sucesso',
@@ -146,7 +152,7 @@ class AdminController extends Controller
                 ->with('usuario')
                 ->first();
 
-            if (!$paciente) {
+            if (! $paciente) {
                 return response()->json([
                     'error' => 'Paciente não encontrado',
                 ], 404);

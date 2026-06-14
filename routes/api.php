@@ -5,13 +5,24 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\AuthAdminsController;
 use App\Http\Controllers\AuthUserController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PsicologoDashboardController;
 use App\Http\Controllers\PsicologosController;
 use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\VerificarEmailController;
 use Illuminate\Support\Facades\Route;
+
+
+// use Illuminate\Support\Facades\Mail;
+// use App\Mail\AgendamentoSessao;
+
+// Route::get('/teste-email', function () {
+//     Mail::to('hypnoszz01@gmail.com')->send(new AgendamentoSessao(null));
+//     return response()->json(['message' => 'Email enviado!']);
+// });
 
 Route::post('/registerPsicologo', [UsersController::class, 'cadastroPsicologo']);
 Route::post('/registerPaciente', [UsersController::class, 'cadastroPaciente']);
@@ -19,6 +30,8 @@ Route::post('/login', [AuthUserController::class, 'login']);
 Route::post('/loginAdmin', [AuthAdminsController::class, 'login']);
 Route::post('/verificarUserCPF', [AuthUserController::class, 'verificarCPF']);
 Route::post('/verificarUsername', [AuthUserController::class, 'verificarUsername']);
+Route::post('/verificarEmail', [VerificarEmailController::class, 'verificar']);
+Route::post('/verificarCodigo', [VerificarEmailController::class, 'enviar']);
 
 // Rotas usuarios
 Route::middleware('auth:sanctum')->group(function () {
@@ -91,4 +104,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
     Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
 
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/chat/iniciar', [ChatController::class, 'iniciarChat']);
+    Route::post('/chat/enviar', [ChatController::class, 'enviar']);
+    Route::get('/chat/historico/{id}', [ChatController::class, 'historico']);
 });

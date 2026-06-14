@@ -44,8 +44,14 @@ class PsicologosController extends Controller
     public function listarPacientes()
     {
         try {
+
+            $psicologo = auth()->user()->psicologo;
+
             $pacientes = User::where('tipo_usuario', 'paciente')
                 ->where('status_usuario', 'ativo')
+                ->whereHas('paciente.sessoes', function ($query) use ($psicologo) {
+                    $query->where('id_psicologo', $psicologo->id_psicologo);
+                })
                 ->with('paciente')
                 ->get();
 

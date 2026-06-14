@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pagamento;
-use App\Models\Sessao;
 use App\Models\Psicologo;
-use App\Models\Paciente;
+use App\Models\Sessao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -142,17 +141,6 @@ class SessaoController extends Controller
                     'error' => 'Sessão não encontrada',
                 ], 404);
             }
-            $dataSessao = Carbon::parse(
-                $sessao->data_sessao.' '.$sessao->hora_inicio
-            );
-
-            $agora = Carbon::now();
-
-            if ($agora->diffInHours($dataSessao, false) < 24) {
-                return response()->json([
-                    'error' => 'Só é possível cancelar com no mínimo 24h de antecedência',
-                ], 400);
-            }
 
             $motivo = $request->motivo;
 
@@ -162,22 +150,35 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $sessao->observacoes = $motivo;
+            if ($sessao->status_sessao !== 'agendada') {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
+            }
 
-            $sessao->status_sessao = 'cancelada';
+            $dataSessao = Carbon::parse($sessao->data_sessao.' '.$sessao->hora_inicio);
+
+            if (Carbon::now()->diffInHours($dataSessao, false) < 24) {
+                return response()->json([
+                    'error' => 'Só é possível solicitar cancelamento com no mínimo 24h de antecedência',
+                ], 400);
+            }
+
+            $sessao->status_sessao = 'cancelamento_solicitado';
+            $sessao->observacoes = $motivo;
             $sessao->save();
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Sessão cancelada com sucesso',
+                'message' => 'Solicitação de cancelamento enviada com sucesso',
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'error' => 'Erro ao cancelar sessão',
+                'error' => 'Erro ao solicitar cancelamento',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -194,6 +195,12 @@ class SessaoController extends Controller
                 return response()->json([
                     'error' => 'Sessão não encontrada',
                 ], 404);
+            }
+
+            if ($sessao->status_sessao !== 'agendada') {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
             }
 
             $nova_data = $request->nova_data;
@@ -227,31 +234,26 @@ class SessaoController extends Controller
 
             if ($ocupado) {
                 return response()->json([
-                    'error' => 'Horário ocupado',
+                    'error' => 'Horário já ocupado',
                 ], 400);
             }
 
-            $hora_fim = Carbon::parse($nova_hora)
-                ->addMinutes(50)
-                ->format('H:i:s');
-
-            $sessao->update([
-                'data_sessao' => $nova_data,
-                'hora_inicio' => $nova_hora,
-                'hora_fim' => $hora_fim,
-            ]);
+            $sessao->status_sessao = 'reagendamento_solicitado';
+            $sessao->data_solicitada = $nova_data;
+            $sessao->hora_solicitada = $nova_hora;
+            $sessao->save();
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Sessão reagendada com sucesso',
+                'message' => 'Solicitação de reagendamento enviada com sucesso',
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'error' => 'Erro ao reagendar sessão',
+                'error' => 'Erro ao solicitar reagendamento',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -265,7 +267,7 @@ class SessaoController extends Controller
                 ->with('psicologo.usuario')
                 ->first();
 
-            return response()->json([   
+            return response()->json([
                 'sessao' => $sessao,
             ]);
 
@@ -421,7 +423,7 @@ class SessaoController extends Controller
             $id_paciente = auth()->user()->paciente->id_paciente;
             $motivo = $request->motivo;
 
-            if (!$motivo) {
+            if (! $motivo) {
                 return response()->json([
                     'error' => 'O motivo é obrigatório',
                 ], 400);

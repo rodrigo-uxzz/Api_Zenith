@@ -21,4 +21,9 @@ class Paciente extends Authenticatable
     {
         return $this->belongsTo(User::class, 'id_usuario');
     }
+
+    public function sessoes()
+    {
+        return $this->hasMany(Sessao::class, 'id_paciente');
+    }
 }

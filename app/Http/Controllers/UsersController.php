@@ -2,18 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContaEmAnaliseMail;
+use App\Models\EmailVerificationCode;
 use App\Models\Paciente;
 use App\Models\Psicologo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 
 class UsersController extends Controller
 {
     // CADASTRO PSICOLOGO
     public function cadastroPsicologo(Request $request)
     {
+        // VERIFICAÇÃO DE EMAIL
+        $verificacao = EmailVerificationCode::where('email', $request->email)
+            ->where('codigo', $request->codigo)
+            ->first();
+
+        if (!$verificacao) {
+            return response()->json([
+                'error' => 'Email não verificado',
+                'message' => 'Código inválido. Verifique seu email e tente novamente.',
+            ], 403);
+        }
+
+        if (now()->isAfter($verificacao->expira_em)) {
+            $verificacao->delete();
+            return response()->json([
+                'error' => 'Código expirado',
+                'message' => 'Seu código expirou. Solicite um novo código.',
+            ], 403);
+        }
+
         DB::beginTransaction();
         try {
 
@@ -31,7 +55,15 @@ class UsersController extends Controller
                 'formacao' => 'required|in:GRADUACAO,BACHARELADO,LICENCIATURA,ESPECIALIZACAO,MESTRADO,DOUTORADO,POS_DOUTORADO',
                 'termos_aceitos' => 'required|boolean',
                 'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'codigo' => 'required|string|size:6',
             ]);
+
+            if (!$validatedData['termos_aceitos']) {
+                return response()->json([
+                    'error' => 'Termos não aceitos',
+                    'message' => 'Você precisa aceitar os termos para se cadastrar.',
+                ], 422);
+            }
 
             if ($request->hasFile('foto')) {
                 $fotoPerfil = $request->file('foto')->store('fotos', 'public');
@@ -52,36 +84,68 @@ class UsersController extends Controller
                 'status_usuario' => 'ativo',
                 'termos_aceitos' => $validatedData['termos_aceitos'],
                 'foto_perfil' => $fotoPerfil,
-
+                'email_verified_at' => now(),
             ]);
+
             Psicologo::create([
                 'id_usuario' => $user->id_usuario,
                 'crp' => $validatedData['crp'],
-                'cadastro_e_psi' => $validatedData['cadastroEpsi'] ?? false,                'grau_formacao' => $validatedData['formacao'],
+                'cadastro_e_psi' => $validatedData['cadastroEpsi'] ?? false,
+                'grau_formacao' => $validatedData['formacao'],
                 'status_psicologo' => 'pendente',
             ]);
 
+            $verificacao->delete();
+
             DB::commit();
+
+            // ENVIA EMAIL DE CONTA EM ANÁLISE
+            Mail::to($user->email)->send(new ContaEmAnaliseMail($user->nome));
 
             return response()->json([
                 'message' => 'Psicologo cadastrado com sucesso',
                 'user' => $user,
             ], 201);
 
-        } catch (\Exception $e) {
-
+        } catch (ValidationException $e) {
             DB::rollBack();
+            return response()->json([
+                'error' => 'Dados inválidos',
+                'message' => $e->errors(),
+            ], 422);
 
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'error' => 'Erro ao cadastrar Psicologo',
                 'message' => $e->getMessage(),
             ], 500);
-
         }
     }
 
+    // CADASTRO PACIENTE
     public function cadastroPaciente(Request $request)
     {
+        // VERIFICAÇÃO DE EMAIL
+        $verificacao = EmailVerificationCode::where('email', $request->email)
+            ->where('codigo', $request->codigo)
+            ->first();
+
+        if (!$verificacao) {
+            return response()->json([
+                'error' => 'Email não verificado',
+                'message' => 'Código inválido. Verifique seu email e tente novamente.',
+            ], 403);
+        }
+
+        if (now()->isAfter($verificacao->expira_em)) {
+            $verificacao->delete();
+            return response()->json([
+                'error' => 'Código expirado',
+                'message' => 'Seu código expirou. Solicite um novo código.',
+            ], 403);
+        }
+
         DB::beginTransaction();
         try {
             $validatedData = $request->validate([
@@ -95,7 +159,15 @@ class UsersController extends Controller
                 'cpf' => 'required|string|size:11|unique:users,cpf',
                 'termos' => 'required|boolean',
                 'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'codigo' => 'required|string|size:6',
             ]);
+
+            if (!$validatedData['termos']) {
+                return response()->json([
+                    'error' => 'Termos não aceitos',
+                    'message' => 'Você precisa aceitar os termos para se cadastrar.',
+                ], 422);
+            }
 
             if ($request->hasFile('foto')) {
                 $fotoPerfil = $request->file('foto')->store('fotos', 'public');
@@ -116,29 +188,36 @@ class UsersController extends Controller
                 'status_usuario' => 'ativo',
                 'termos_aceitos' => $validatedData['termos'],
                 'foto_perfil' => $fotoPerfil,
-
+                'email_verified_at' => now(),
             ]);
 
             Paciente::create([
                 'id_usuario' => $user->id_usuario,
                 'status_paciente' => 'ativo',
-
             ]);
+
+            $verificacao->delete();
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Paciente cadastrado com sucesso',
                 'user' => $user,
-            ], 200);
+            ], 201);
+
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Dados inválidos',
+                'message' => $e->errors(),
+            ], 422);
 
         } catch (\Exception $e) {
             DB::rollback();
-
             return response()->json([
                 'error' => 'Erro ao cadastrar paciente',
                 'message' => $e->getMessage(),
-            ]);
+            ], 500);
         }
     }
 }
