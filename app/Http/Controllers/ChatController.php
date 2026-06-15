@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Events\MensagemEnviada;
+use App\Events\MensagemLida;
 use App\Models\Chat;
+use App\Models\Mensagem;
 use App\Models\Paciente;
 use App\Models\Psicologo;
-use App\Models\Mensagem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -120,6 +121,33 @@ class ChatController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Erro ao buscar histórico.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function visualizar($id_chat)
+    {
+        DB::beginTransaction();
+        try {
+            $idUsuario = auth()->user()->id_usuario;
+
+            Mensagem::where('id_chat', $id_chat)
+                ->where('id_remetente', '!=', $idUsuario)
+                ->where('status_mensagem', '!=', 'lida')
+                ->update(['status_mensagem' => 'lida']);
+
+            broadcast(new MensagemLida($id_chat, $idUsuario))->toOthers();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Mensagens marcadas como lidas'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Erro ao marcar mensagens como lidas',
                 'error' => $e->getMessage(),
             ], 500);
         }

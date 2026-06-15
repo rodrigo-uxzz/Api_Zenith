@@ -96,18 +96,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/rejeitarPsicologo/{id_psicologo}', [AdminController::class, 'rejeitarPsicologo']);
     Route::get('/dashboard', [AdminDashboardController::class, 'dashboard']);
 });
-
+// Rotas Financeiro
 Route::middleware('auth:sanctum')->group(function () {
-
     Route::get('/dashboardFinanceiro', [FinanceiroController::class, 'dashboardFinanceiro']);
     Route::get('/listarPagamentos', [FinanceiroController::class, 'listarPagamentos']);
     Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
     Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
 
 });
-
+// Rotas Chat
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/iniciar', [ChatController::class, 'iniciarChat']);
     Route::post('/chat/enviar', [ChatController::class, 'enviar']);
     Route::get('/chat/historico/{id}', [ChatController::class, 'historico']);
+    Route::patch('/chat/visualizar/{id_chat}', [ChatController::class, 'visualizar']);
 });
