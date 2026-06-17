@@ -4,19 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Psicologo;
 use App\Models\User;
-use App\Models\Paciente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-// A Função de verificarUserCPF
 use Illuminate\Support\Facades\Storage;
 
 class AuthUserController extends Controller
 {
     public function login(Request $request)
     {
-
         try {
 
             $credenciais = $request->validate([
@@ -26,43 +23,68 @@ class AuthUserController extends Controller
 
             $user = User::where('email', $credenciais['login'])->first();
 
+            if (! $user) {
+                $psicologo = Psicologo::where('crp', $credenciais['login'])->first();
+                if ($psicologo) {
+                    $user = User::find($psicologo->id_usuario);
+                }
+            }
+
+            if (! $user) {
+                return response()->json([
+                    'error' => 'Credenciais inválidas',
+                ], 401);
+            }
+
+            if (! Hash::check($credenciais['senha'], $user->senha_hash)) {
+                return response()->json([
+                    'error' => 'Credenciais inválidas',
+                ], 401);
+            }
+
             if ($user->status_usuario !== 'ativo') {
                 return response()->json([
-                    'error' => 'usuario desativado',
+                    'error' => 'Usuário desativado',
                 ], 403);
-            } else {
-
-                if (! $user) {
-                    $psicologo = Psicologo::where('crp', $credenciais['login'])->first();
-
-                    if ($psicologo) {
-                        $user = User::find($psicologo->id_usuario);
-                    }
-                }
-
-                if (! $user || ! Hash::check($credenciais['senha'], $user->senha_hash)) {
-                    return response()->json(['error' => 'Credenciais inválidas'], 401);
-                }
-
-                if ($user->tipo_usuario === 'psicologo' && $user->psicologo->status_psicologo !== 'aprovado') {
-                    return response()->json(['error' => 'Aguarde a verificação da conta'], 403);
-                }
-
-                // * Novo - Apenas para o mobile acessar o id_paciente do user.
-                if ($user->tipo_usuario === 'paciente') {
-                    $paciente = Paciente::where('id_usuario', $user->id_usuario)->first();
-                    $user->id_paciente = $paciente?->id_paciente;
-                }
-
-                $token = $user->createToken('auth-token')->plainTextToken;
-
-                return response()->json([
-                    'message' => 'Login realizado com sucesso',
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                    'user' => $user,
-                ], 200);
             }
+
+            if ($user->tipo_usuario === 'psicologo' && $user->psicologo) {
+
+                $status = $user->psicologo->status_psicologo;
+
+                if ($status === 'pendente') {
+                    return response()->json([
+                        'error' => 'Aguarde a verificação da conta',
+                    ], 403);
+                }
+
+                if ($status === 'recusado') {
+                    return response()->json([
+                        'error' => 'Cadastro não aprovado',
+                    ], 403);
+                }
+
+                if ($status === 'bloqueado') {
+                    return response()->json([
+                        'error' => 'Conta bloqueada',
+                    ], 403);
+                }
+
+                if ($status === 'excluido') {
+                    return response()->json([
+                        'error' => 'Conta removida',
+                    ], 403);
+                }
+            }
+
+            $token = $user->createToken('auth-token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login realizado com sucesso',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user,
+            ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -91,7 +113,9 @@ class AuthUserController extends Controller
         try {
 
             $user = $request->user();
-            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)->first();
+            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)
+                ->with('especialidades')
+                ->first();
 
             return response()->json([
                 'user' => $user,
@@ -106,38 +130,61 @@ class AuthUserController extends Controller
         }
     }
 
-    public function verificarUserCPF(Request $request) // *O certo é "verificar Disponibilidade" mas eu prefiro assim!
+    public function verificarCPF(Request $request)
     {
         try {
 
-            $dados = $request->validate([
-                'username' => 'string|required_without:cpf',
-                'cpf' => 'string|required_without:username',
+            $request->validate([
+                'cpf' => 'required|string',
             ]);
 
-            $usernameExiste = false;
-            $cpfExiste = false;
+            $cpf = preg_replace('/\D/', '', $request->cpf);
 
-            if (! empty($dados['username'])) {
-                $usernameExiste = User::where('username', $dados['username'])->exists();
+            // verifica validade matemática
+            if (! $this->validarCPF($cpf)) {
+
+                return response()->json([
+                    'error' => 'CPF inválido',
+                ], 400);
             }
 
-            if (! empty($dados['cpf'])) {
-
-                // remove máscara do CPF
-                $cpf = preg_replace('/\D/', '', $dados['cpf']);
-
-                $cpfExiste = User::where('cpf', $cpf)->exists();
-            }
+            // verifica se já existe
+            $cpfExiste = User::where('cpf', $cpf)->exists();
 
             return response()->json([
-                'username_disponivel' => ! $usernameExiste,
                 'cpf_disponivel' => ! $cpfExiste,
             ], 200);
 
         } catch (\Exception $e) {
+
             return response()->json([
-                'error' => 'Erro ao verificar disponibilidade',
+                'error' => 'Erro ao verificar CPF',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verificarUsername(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'username' => 'required|string',
+            ]);
+
+            $usernameExiste = User::where(
+                'username',
+                $request->username
+            )->exists();
+
+            return response()->json([
+                'username_disponivel' => ! $usernameExiste,
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => 'Erro ao verificar username',
                 'details' => $e->getMessage(),
             ], 500);
         }
@@ -181,29 +228,64 @@ class AuthUserController extends Controller
                 'biografia' => 'sometimes|string|max:255',
                 'foto_perfil' => 'sometimes|image|mimes:jpg,jpeg,png|max:5120',
 
+                // 👇 ADICIONA ISSO
+                'especialidade_ids' => 'sometimes|array',
+                'especialidade_ids.*' => 'exists:especialidades,id_especialidade',
             ]);
 
+            // FOTO
             if ($request->hasFile('foto_perfil')) {
 
                 if ($user->foto_perfil) {
                     Storage::disk('public')->delete($user->foto_perfil);
                 }
 
-                $fotoPerfil = $request->file('foto_perfil')->store('fotos', 'public');
+                $fotoPerfil = $request
+                    ->file('foto_perfil')
+                    ->store('fotos', 'public');
+
                 $dados['foto_perfil'] = $fotoPerfil;
             }
 
+            // SENHA
             if (isset($dados['senha'])) {
+
                 $dados['senha_hash'] = Hash::make($dados['senha']);
+
                 unset($dados['senha']);
             }
 
+            // REMOVE especialidade_ids do update do user
+            $especialidades = $dados['especialidade_ids'] ?? null;
+
+            unset($dados['especialidade_ids']);
+
+            // UPDATE USER
             $user->update($dados);
 
-            if ($user->tipo_usuario === 'psicologo' && isset($dados['biografia'])) {
-                $user->psicologo()->update([
-                    'biografia' => $dados['biografia'],
-                ]);
+            // UPDATE PSICOLOGO
+            if ($user->tipo_usuario === 'psicologo') {
+
+                $psicologo = Psicologo::where(
+                    'id_usuario',
+                    $user->id_usuario
+                )->first();
+
+                // BIOGRAFIA
+                if (isset($dados['biografia'])) {
+
+                    $psicologo->update([
+                        'biografia' => $dados['biografia'],
+                    ]);
+                }
+
+                // 👇 SINCRONIZA ESPECIALIDADES
+                if ($especialidades) {
+
+                    $psicologo->especialidades()->sync(
+                        $especialidades
+                    );
+                }
             }
 
             return response()->json([
@@ -217,7 +299,6 @@ class AuthUserController extends Controller
                 'error' => 'Erro ao atualizar perfil',
                 'details' => $e->getMessage(),
             ], 500);
-
         }
     }
 
@@ -227,12 +308,14 @@ class AuthUserController extends Controller
             DB::beginTransaction();
 
             $user = $request->user();
+            $user->status_usuario = 'excluido';
 
-            if (!$user) {
-                throw new \Exception('Usuário não autenticado');
+            if ($user->tipo_usuario === 'paciente') {
+
+            } elseif ($user->tipo_usuario === 'psicologo') {
+
             }
 
-            $user->status_usuario = 'excluido';
             $user->save();
 
             DB::commit();
@@ -248,6 +331,41 @@ class AuthUserController extends Controller
                 'error' => 'Erro ao excluir perfil',
                 'details' => $e->getMessage(),
             ], 500);
+
         }
+    }
+
+    private function validarCPF($cpf)
+    {
+        // remove tudo que não é número
+        $cpf = preg_replace('/[^0-9]/is', '', $cpf);
+
+        // tamanho inválido
+        if (strlen($cpf) != 11) {
+            return false;
+        }
+
+        // números repetidos
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
+            return false;
+        }
+
+        // valida dígitos verificadores
+        for ($t = 9; $t < 11; $t++) {
+
+            $d = 0;
+
+            for ($c = 0; $c < $t; $c++) {
+                $d += $cpf[$c] * (($t + 1) - $c);
+            }
+
+            $d = ((10 * $d) % 11) % 10;
+
+            if ($cpf[$c] != $d) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

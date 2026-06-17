@@ -1,17 +1,37 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\AuthAdminsController;
 use App\Http\Controllers\AuthUserController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\PsicologoDashboardController;
 use App\Http\Controllers\PsicologosController;
-use App\Http\Controllers\UsersController;
 use App\Http\Controllers\SessaoController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\VerificarEmailController;
 use Illuminate\Support\Facades\Route;
+
+
+// use Illuminate\Support\Facades\Mail;
+// use App\Mail\AgendamentoSessao;
+
+// Route::get('/teste-email', function () {
+//     Mail::to('hypnoszz01@gmail.com')->send(new AgendamentoSessao(null));
+//     return response()->json(['message' => 'Email enviado!']);
+// });
 
 Route::post('/registerPsicologo', [UsersController::class, 'cadastroPsicologo']);
 Route::post('/registerPaciente', [UsersController::class, 'cadastroPaciente']);
 Route::post('/login', [AuthUserController::class, 'login']);
-Route::post('/verificarUserCPF', [AuthUserController::class, 'verificarUserCPF']);
+Route::post('/loginAdmin', [AuthAdminsController::class, 'login']);
+Route::post('/verificarUserCPF', [AuthUserController::class, 'verificarCPF']);
+Route::post('/verificarUsername', [AuthUserController::class, 'verificarUsername']);
+Route::post('/verificarEmail', [VerificarEmailController::class, 'verificar']);
+Route::post('/verificarCodigo', [VerificarEmailController::class, 'enviar']);
 
 // Rotas usuarios
 Route::middleware('auth:sanctum')->group(function () {
@@ -37,6 +57,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/consultasDoDia', [PsicologosController::class, 'consultasDoDia']);
     Route::get('/sessoesPendentes', [PsicologosController::class, 'sessoesPendentes']);
     Route::get('/psicologoHistorico', [PsicologosController::class, 'historicoSessoes']);
+    Route::get('/dahsBoardPsicologo', [PsicologoDashboardController::class, 'dashboard']);
+    Route::post('/psicologos/especialidades', [PsicologosController::class, 'updateEspecialidades']);
+    Route::get('/psicologos/especialidades', [PsicologosController::class, 'getEspecialidade']);
+    Route::get('/especialidades', [PsicologosController::class, 'getEspecialidades']);
+
 });
 
 // Rotas Agenda
@@ -46,7 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/configurarAgenda', [AgendaController::class, 'configurarAgenda']);
 });
 
-//Rotas Sessão
+// Rotas Sessão
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/agendarSessao', [SessaoController::class, 'agendarSessao']);
     Route::post('/sessaoRealizada/{id_sessao}', [SessaoController::class, 'sessaoRealizada']);
@@ -58,4 +83,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/solicitarCancelamento/{id_sessao}', [SessaoController::class, 'solicitarCancelamento']);
     Route::post('/solicitarReagendamento/{id_sessao}', [SessaoController::class, 'solicitarReagendamento']);
 
+});
+
+// Rotas Admin
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logoutAdmin', [AuthAdminsController::class, 'logout']);
+    Route::get('/psicologos', [AdminController::class, 'listarPsicologos']);
+    Route::get('/detalhesPsicologo/{id}', [AdminController::class, 'verPsicologo']);
+    Route::get('/pacientes', [AdminController::class, 'listarPacientes']);
+    Route::get('/detalhesPaciente/{id}', [AdminController::class, 'verPaciente']);
+    Route::post('/aprovarPsicologo/{id_psicologo}', [AdminController::class, 'aprovarPsicologo']);
+    Route::post('/rejeitarPsicologo/{id_psicologo}', [AdminController::class, 'rejeitarPsicologo']);
+    Route::get('/dashboard', [AdminDashboardController::class, 'dashboard']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/dashboardFinanceiro', [FinanceiroController::class, 'dashboardFinanceiro']);
+    Route::get('/listarPagamentos', [FinanceiroController::class, 'listarPagamentos']);
+    Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
+    Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
+
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/chat/iniciar', [ChatController::class, 'iniciarChat']);
+    Route::post('/chat/enviar', [ChatController::class, 'enviar']);
+    Route::get('/chat/historico/{id}', [ChatController::class, 'historico']);
 });
