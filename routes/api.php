@@ -14,6 +14,7 @@ use App\Http\Controllers\RecuperarSenhaController;
 use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VerificarEmailController;
+use App\Http\Controllers\PushTokenController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -123,4 +124,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+// Rotas Notificação
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/save-push-token',[PushTokenController::class, 'store']);
 
+});

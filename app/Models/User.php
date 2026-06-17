@@ -49,6 +49,11 @@ class User extends Authenticatable
 
     }
 
+    public function pushTokens()
+    {
+        return $this->hasMany(PushToken::class, 'id_usuario');
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

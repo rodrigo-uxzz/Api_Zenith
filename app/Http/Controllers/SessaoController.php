@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Pagamento;
 use App\Models\Psicologo;
+use App\Models\Paciente;
+use App\Models\User;
 use App\Models\Sessao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\PushNotificationService;
 
 class SessaoController extends Controller
 {
@@ -168,6 +171,28 @@ class SessaoController extends Controller
             $sessao->observacoes = $motivo;
             $sessao->save();
 
+            $paciente = Paciente::find($sessao->id_paciente);
+
+            if ($paciente) {
+
+                $usuario = User::find($paciente->id_usuario);
+
+                if ($usuario) {
+
+                    app(
+                        \App\Http\Controllers\PushNotificationService::class
+                    )->send(
+                        $usuario,
+                        'Cancelamento solicitado',
+                        'O psicólogo solicitou o cancelamento da sessão.',
+                        [
+                            'id_sessao' => $sessao->id_sessao,
+                            'tipo' => 'cancelamento'
+                        ]
+                    );
+                }
+            }
+
             DB::commit();
 
             return response()->json([
@@ -243,6 +268,28 @@ class SessaoController extends Controller
             $sessao->hora_solicitada = $nova_hora;
             $sessao->save();
 
+            $paciente = Paciente::find($sessao->id_paciente);
+
+            if ($paciente) {
+
+                $usuario = User::find($paciente->id_usuario);
+
+                if ($usuario) {
+
+                    app(
+                        \App\Http\Controllers\PushNotificationService::class
+                    )->send(
+                        $usuario,
+                        'Reagendamento solicitado',
+                        'O psicólogo propôs uma nova data para a sessão.',
+                        [
+                            'id_sessao' => $sessao->id_sessao,
+                            'tipo' => 'reagendamento'
+                        ]
+                    );
+                }
+            }
+
             DB::commit();
 
             return response()->json([
@@ -287,12 +334,15 @@ class SessaoController extends Controller
         try {
 
             $sessao = Sessao::find($id_sessao);
-
+            
             if (! $sessao) {
                 return response()->json([
                     'error' => 'Consulta não encontrada',
                 ], 404);
             }
+            
+            $statusAnterior = $sessao->status_sessao;
+
 
             $dataSessao = Carbon::parse(
                 $sessao->data_sessao.' '.$sessao->hora_inicio
@@ -327,6 +377,49 @@ class SessaoController extends Controller
             }
 
             $sessao->save();
+
+            $paciente = Paciente::find($sessao->id_paciente);
+
+            if ($paciente) {
+
+                $usuario = User::find($paciente->id_usuario);
+
+                if ($usuario) {
+
+                    $titulo = '';
+                    $mensagem = '';
+
+                    switch ($statusAnterior) {
+
+                        case 'pendente':
+                            $titulo = 'Sessão aprovada';
+                            $mensagem = 'Sua solicitação de sessão foi aprovada.';
+                            break;
+
+                        case 'cancelamento_solicitado':
+                            $titulo = 'Cancelamento aprovado';
+                            $mensagem = 'Sua solicitação de cancelamento foi aprovada.';
+                            break;
+
+                        case 'reagendamento_solicitado':
+                            $titulo = 'Reagendamento aprovado';
+                            $mensagem = 'Sua solicitação de reagendamento foi aprovada.';
+                            break;
+                    }
+
+                    app(
+                        \App\Http\Controllers\PushNotificationService::class
+                    )->send(
+                        $usuario,
+                        $titulo,
+                        $mensagem,
+                        [
+                            'id_sessao' => $sessao->id_sessao,
+                            'tipo' => $statusAnterior
+                        ]
+                    );
+                    }
+                }
 
             DB::commit();
 
@@ -389,6 +482,26 @@ class SessaoController extends Controller
             $sessao->observacoes = $motivo;
             $sessao->save();
 
+            $paciente = Paciente::find($sessao->id_paciente);
+
+            if ($paciente) {
+                $usuario = User::find($paciente->id_usuario);
+
+                if ($usuario) {
+                    app(
+                        \App\Http\Controllers\PushNotificationService::class
+                    )->send(
+                        $usuario,
+                        'Solicitação recusada',
+                        'O psicólogo recusou sua solicitação.',
+                        [
+                            'id_sessao' => $sessao->id_sessao
+                        ]
+                    );
+                }
+            }
+
+
             DB::commit();
 
             return response()->json([
@@ -444,6 +557,20 @@ class SessaoController extends Controller
             $sessao->status_sessao = 'cancelamento_solicitado';
             $sessao->observacoes = $motivo;
             $sessao->save();
+
+            $psicologo = Psicologo::find($sessao->id_psicologo);
+            $usuario = User::find($psicologo->id_usuario);
+
+            app(
+                \App\Http\Controllers\PushNotificationService::class
+            )->send(
+                $usuario,
+                'Cancelamento solicitado',
+                'O Psicólogo solicitou o cancelamento da sessão.',
+                [
+                    'id_sessao' => $sessao->id_sessao
+                ]
+            );
 
             DB::commit();
 
@@ -513,6 +640,20 @@ class SessaoController extends Controller
             $sessao->data_solicitada = $nova_data;
             $sessao->hora_solicitada = $nova_hora;
             $sessao->save();
+
+            $psicologo = Psicologo::find($sessao->id_psicologo);
+            $usuario = User::find($psicologo->id_usuario);
+
+            app(
+                \App\Http\Controllers\PushNotificationService::class
+            )->send(
+                $usuario,
+                'Reagendamento solicitado',
+                'O Psicólogo solicitou um reagendamento.',
+                [
+                    'id_sessao' => $sessao->id_sessao
+                ]
+            );
 
             DB::commit();
 
