@@ -103,6 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/listarPagamentos', [FinanceiroController::class, 'listarPagamentos']);
     Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
     Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
+    Route::post('/anexarComprovante/{id}', [FinanceiroController::class, 'anexarComprovante']);
+    Route::get('/verComprovante/{id}', [FinanceiroController::class, 'verComprovante']);    
 
 });
 // Rotas Chat

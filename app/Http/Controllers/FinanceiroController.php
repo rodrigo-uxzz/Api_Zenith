@@ -6,6 +6,7 @@ use App\Models\Pagamento;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class FinanceiroController extends Controller
 {
@@ -166,5 +167,81 @@ class FinanceiroController extends Controller
             ], 500);
         }
 
+    }
+
+    public function anexarComprovante(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try{
+
+            $request->validate([
+                'comprovante' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5048',
+            ]);
+
+            $pagamento = Pagamento::where('id_paciente', auth()->user()->paciente->id_paciente)
+                ->firstOrFail($id);
+
+            if($pagamento->status_pagamento === 'pago'){
+                return response()->json([
+                    'error' => 'Pagamento já comprovado',
+                ], 400);
+            }
+
+
+            if($pagamento->comprovante) {
+                Storage::disk('public')->delete($pagamento->comprovante);
+            }
+
+            $caminho = $request->file('comprovante')->store('comprovantes', 'public');
+
+            $pagamento->comprovante = $caminho;
+            $pagamento->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Comprovante anexado com sucesso',
+            ], 200);
+
+        }catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao anexar comprovante',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verComprovante($id)
+    {
+        try {
+
+            $idPsicologo = auth()->user()->psicologo->id_psicologo;
+
+            $pagamento = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo) {
+                $query->where('id_psicologo', $idPsicologo);
+            })->findOrFail($id);
+
+            if (!$pagamento->comprovante) {
+                return response()->json([
+                    'error' => 'Nenhum comprovante anexado',
+                ], 404);
+            }
+
+            $url = Storage::disk('public')->url($pagamento->comprovante);
+
+            return response()->json([
+                'comprovante' => $url,
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => 'Erro ao buscar comprovante',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
