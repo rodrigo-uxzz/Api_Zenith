@@ -68,7 +68,7 @@ class ChatController extends Controller
                 'status_mensagem' => 'enviada',
             ]);
 
-            broadcast(new MensagemEnviada($mensagem))->toOthers();
+            broadcast(new MensagemEnviada($mensagem));
 
             DB::commit();
 

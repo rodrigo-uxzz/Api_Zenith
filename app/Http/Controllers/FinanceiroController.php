@@ -23,7 +23,9 @@ class FinanceiroController extends Controller
             $pendentes = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $data) {
 
                 $query->where('id_psicologo', $idPsicologo)
-                    ->whereDate('data_sessao', $data);
+                    ->whereDate('data_sessao', $data)
+                    ->where('status_sessao', '!=', 'cancelada')
+                    ->where('status_sessao', '!=', 'recusada');
 
             })
                 ->where('status_pagamento', 'pendente')
@@ -32,7 +34,9 @@ class FinanceiroController extends Controller
             $pagas = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $data) {
 
                 $query->where('id_psicologo', $idPsicologo)
-                    ->whereDate('data_sessao', $data);
+                    ->whereDate('data_sessao', $data)
+                    ->where('status_sessao', '!=', 'cancelada')
+                    ->where('status_sessao', '!=', 'recusada');
 
             })
                 ->where('status_pagamento', 'pago')
@@ -47,12 +51,12 @@ class FinanceiroController extends Controller
                 ->where('status_pagamento', 'pago')
                 ->sum('valor_total');
 
-            $faturamento_mensal = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo) {
-                $query->where('id_psicologo', $idPsicologo);
+            $faturamento_mensal = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $dataCarbon) {
+                $query->where('id_psicologo', $idPsicologo)
+                    ->whereMonth('data_sessao', $dataCarbon->month)
+                    ->whereYear('data_sessao', $dataCarbon->year);
             })
                 ->where('status_pagamento', 'pago')
-                ->whereMonth('created_at', $dataCarbon->month)
-                ->whereYear('created_at', $dataCarbon->year)
                 ->sum('valor_total');
 
             return response()->json([
@@ -172,7 +176,7 @@ class FinanceiroController extends Controller
     public function anexarComprovante(Request $request, $id)
     {
         DB::beginTransaction();
-        try{
+        try {
 
             $request->validate([
                 'comprovante' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5048',
@@ -181,14 +185,13 @@ class FinanceiroController extends Controller
             $pagamento = Pagamento::where('id_paciente', auth()->user()->paciente->id_paciente)
                 ->firstOrFail($id);
 
-            if($pagamento->status_pagamento === 'pago'){
+            if ($pagamento->status_pagamento === 'pago') {
                 return response()->json([
                     'error' => 'Pagamento já comprovado',
                 ], 400);
             }
 
-
-            if($pagamento->comprovante) {
+            if ($pagamento->comprovante) {
                 Storage::disk('public')->delete($pagamento->comprovante);
             }
 
@@ -203,7 +206,7 @@ class FinanceiroController extends Controller
                 'message' => 'Comprovante anexado com sucesso',
             ], 200);
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
 
             DB::rollBack();
 
@@ -224,7 +227,7 @@ class FinanceiroController extends Controller
                 $query->where('id_psicologo', $idPsicologo);
             })->findOrFail($id);
 
-            if (!$pagamento->comprovante) {
+            if (! $pagamento->comprovante) {
                 return response()->json([
                     'error' => 'Nenhum comprovante anexado',
                 ], 404);

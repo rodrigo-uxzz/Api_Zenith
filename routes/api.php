@@ -34,7 +34,7 @@ Route::post('/loginAdmin', [AuthAdminsController::class, 'login']);
 Route::post('/verificarUserCPF', [AuthUserController::class, 'verificarCPF']);
 Route::post('/verificarUsername', [AuthUserController::class, 'verificarUsername']);
 Route::post('/verificarEmail', [VerificarEmailController::class, 'verificar']);
-Route::post('/verificarCodigo', [VerificarEmailController::class, 'enviar']);
+Route::post('/sendVerificationEmail', [VerificarEmailController::class, 'enviar']);
 Route::post('/forgotPassword', [RecuperarSenhaController::class, 'enviarCodigo']);
 Route::post('/verifyResetCode', [RecuperarSenhaController::class, 'verificarCodigo']);
 Route::post('/resetPassword', [RecuperarSenhaController::class, 'redefinirSenha']);
@@ -113,7 +113,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 // Rotas Chat
-// Rotas Chat
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/iniciar', [ChatController::class, 'iniciarChat']);
     Route::post('/chat/enviar', [ChatController::class, 'enviar']);
