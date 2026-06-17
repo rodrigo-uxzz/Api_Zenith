@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\RecuperarSenhaMail;
-use App\Models\EmailVerificationCode;
+use App\Models\verificarEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,14 +23,14 @@ class RecuperarSenhaController extends Controller
         $user = User::where('email', $request->email)->first();
 
         // Deleta código anterior se existir
-        EmailVerificationCode::where('email', $request->email)->delete();
+        verificarEmail::where('email', $request->email)->delete();
 
         $codigo = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        EmailVerificationCode::create([
+        verificarEmail::create([
             'email' => $request->email,
             'codigo' => $codigo,
-            'expira_em' => now()->addMinutes(15),
+            'expiracao' => now()->addMinutes(15),
         ]);
 
         Mail::to($user->email)->send(new RecuperarSenhaMail($user->nome, $codigo));
@@ -45,11 +45,11 @@ class RecuperarSenhaController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'codigo' => 'required|string|size:6',
+            'code' => 'required|string|size:6',
         ]);
 
-        $verificacao = EmailVerificationCode::where('email', $request->email)
-            ->where('codigo', $request->codigo)
+        $verificacao = verificarEmail::where('email', $request->email)
+            ->where('codigo', $request->code)
             ->first();
 
         if (! $verificacao) {
@@ -59,7 +59,7 @@ class RecuperarSenhaController extends Controller
             ], 422);
         }
 
-        if (now()->isAfter($verificacao->expira_em)) {
+        if (now()->isAfter($verificacao->expiracao)) {
             $verificacao->delete();
 
             return response()->json([
@@ -78,13 +78,13 @@ class RecuperarSenhaController extends Controller
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
-            'codigo' => 'required|string|size:6',
+            'code' => 'required|string|size:6',
             'senha' => 'required|string|min:6',
             'confirmar_senha' => 'required|same:senha',
         ]);
 
-        $verificacao = EmailVerificationCode::where('email', $request->email)
-            ->where('codigo', $request->codigo)
+        $verificacao = verificarEmail::where('email', $request->email)
+            ->where('codigo', $request->code)
             ->first();
 
         if (! $verificacao) {
@@ -94,7 +94,7 @@ class RecuperarSenhaController extends Controller
             ], 422);
         }
 
-        if (now()->isAfter($verificacao->expira_em)) {
+        if (now()->isAfter($verificacao->expiracao)) {
             $verificacao->delete();
 
             return response()->json([

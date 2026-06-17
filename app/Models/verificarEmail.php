@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EmailVerificationCode extends Model
+class verificarEmail extends Model
 {
     protected $table = 'verificacao_email';
 

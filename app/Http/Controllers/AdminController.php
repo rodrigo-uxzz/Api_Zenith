@@ -173,10 +173,12 @@ class AdminController extends Controller
     public function listarPacientes()
     {
         try {
-            $pacientes = Paciente::with('usuario')->paginate(10);
+            $pacientes = Paciente::with(['usuario', 'psicologo'])->get();
 
             return response()->json([
-                'pacientes' => $pacientes,
+                'dados' => [
+                    'pacientes' => $pacientes
+                ]
             ], 200);
 
         } catch (\Exception $e) {

@@ -10,10 +10,12 @@ use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PsicologoDashboardController;
 use App\Http\Controllers\PsicologosController;
+use App\Http\Controllers\RecuperarSenhaController;
 use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VerificarEmailController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 
 
 // use Illuminate\Support\Facades\Mail;
@@ -32,6 +34,9 @@ Route::post('/verificarUserCPF', [AuthUserController::class, 'verificarCPF']);
 Route::post('/verificarUsername', [AuthUserController::class, 'verificarUsername']);
 Route::post('/verificarEmail', [VerificarEmailController::class, 'verificar']);
 Route::post('/verificarCodigo', [VerificarEmailController::class, 'enviar']);
+Route::post('/forgotPassword', [RecuperarSenhaController::class, 'enviarCodigo']);
+Route::post('/verifyResetCode', [RecuperarSenhaController::class, 'verificarCodigo']);
+Route::post('/resetPassword', [RecuperarSenhaController::class, 'redefinirSenha']);
 
 // Rotas usuarios
 Route::middleware('auth:sanctum')->group(function () {
@@ -103,13 +108,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
     Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
     Route::post('/anexarComprovante/{id}', [FinanceiroController::class, 'anexarComprovante']);
-    Route::get('/verComprovante/{id}', [FinanceiroController::class, 'verComprovante']);    
+    Route::get('/verComprovante/{id}', [FinanceiroController::class, 'verComprovante']);
 
 });
+// Rotas Chat
 // Rotas Chat
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/iniciar', [ChatController::class, 'iniciarChat']);
     Route::post('/chat/enviar', [ChatController::class, 'enviar']);
     Route::get('/chat/historico/{id}', [ChatController::class, 'historico']);
     Route::patch('/chat/visualizar/{id_chat}', [ChatController::class, 'visualizar']);
+    Route::post('/broadcasting/auth', function (Illuminate\Http\Request $request) {
+        return Broadcast::auth($request);
+    });
 });
+
+

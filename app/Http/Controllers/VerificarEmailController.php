@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Mail\VerificarEmailMail;
-use App\Models\EmailVerificationCode;
+use App\Models\verificarEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
-class EmailVerificationController extends Controller
+class VerificarEmailController extends Controller
 {
     // Envia ou reenvia o código
     public function enviar(Request $request)
@@ -18,15 +18,15 @@ class EmailVerificationController extends Controller
         ]);
 
         // Deleta código anterior se existir
-        EmailVerificationCode::where('email', $request->email)->delete();
+        verificarEmail::where('email', $request->email)->delete();
 
         // Gera código de 6 dígitos
         $codigo = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        EmailVerificationCode::create([
+        verificarEmail::create([
             'email'     => $request->email,
             'codigo'    => $codigo,
-            'expira_em' => now()->addMinutes(15),
+            'expiracao' => now()->addMinutes(15),
         ]);
 
         Mail::to($request->email)->send(new VerificarEmailMail($request->email, $codigo));
@@ -39,18 +39,18 @@ class EmailVerificationController extends Controller
     {
         $request->validate([
             'email'  => 'required|email',
-            'codigo' => 'required|string|size:6',
+            'code' => 'required|string|size:6',
         ]);
 
-        $verificacao = EmailVerificationCode::where('email', $request->email)
-            ->where('codigo', $request->codigo)
+        $verificacao = verificarEmail::where('email', $request->email)
+            ->where('codigo', $request->code)
             ->first();
 
         if (!$verificacao) {
             return response()->json(['message' => 'Código inválido.'], 422);
         }
 
-        if (now()->isAfter($verificacao->expira_em)) {
+        if (now()->isAfter($verificacao->expiracao)) {
             $verificacao->delete();
             return response()->json(['message' => 'Código expirado. Solicite um novo.'], 422);
         }

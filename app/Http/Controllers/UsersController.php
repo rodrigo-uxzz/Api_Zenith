@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ContaEmAnaliseMail;
-use App\Models\EmailVerificationCode;
+use App\Models\verificarEmail;
 use App\Models\Paciente;
 use App\Models\Psicologo;
 use App\Models\User;
@@ -19,8 +19,8 @@ class UsersController extends Controller
     public function cadastroPsicologo(Request $request)
     {
         // VERIFICAÇÃO DE EMAIL
-        $verificacao = EmailVerificationCode::where('email', $request->email)
-            ->where('codigo', $request->codigo)
+        $verificacao = verificarEmail::where('email', $request->email)
+            ->where('codigo', $request->code)
             ->first();
 
         if (!$verificacao) {
@@ -30,7 +30,7 @@ class UsersController extends Controller
             ], 403);
         }
 
-        if (now()->isAfter($verificacao->expira_em)) {
+        if (now()->isAfter($verificacao->expiracao)) {
             $verificacao->delete();
             return response()->json([
                 'error' => 'Código expirado',
@@ -55,7 +55,7 @@ class UsersController extends Controller
                 'formacao' => 'required|in:GRADUACAO,BACHARELADO,LICENCIATURA,ESPECIALIZACAO,MESTRADO,DOUTORADO,POS_DOUTORADO',
                 'termos_aceitos' => 'required|boolean',
                 'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                'codigo' => 'required|string|size:6',
+                'code' => 'required|string|size:6',
             ]);
 
             if (!$validatedData['termos_aceitos']) {
@@ -127,8 +127,8 @@ class UsersController extends Controller
     public function cadastroPaciente(Request $request)
     {
         // VERIFICAÇÃO DE EMAIL
-        $verificacao = EmailVerificationCode::where('email', $request->email)
-            ->where('codigo', $request->codigo)
+        $verificacao = verificarEmail::where('email', $request->email)
+            ->where('codigo', $request->code)
             ->first();
 
         if (!$verificacao) {
@@ -138,7 +138,7 @@ class UsersController extends Controller
             ], 403);
         }
 
-        if (now()->isAfter($verificacao->expira_em)) {
+        if (now()->isAfter($verificacao->expiracao)) {
             $verificacao->delete();
             return response()->json([
                 'error' => 'Código expirado',
@@ -159,7 +159,7 @@ class UsersController extends Controller
                 'cpf' => 'required|string|size:11|unique:users,cpf',
                 'termos' => 'required|boolean',
                 'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                'codigo' => 'required|string|size:6',
+                'code' => 'required|string|size:6',
             ]);
 
             if (!$validatedData['termos']) {
@@ -186,7 +186,7 @@ class UsersController extends Controller
                 'cpf' => $validatedData['cpf'],
                 'tipo_usuario' => 'paciente',
                 'status_usuario' => 'ativo',
-                'termos_aceitos' => $validatedData['termos'],
+                'termos_aceitos' => filter_var($request->termos, FILTER_VALIDATE_BOOLEAN),
                 'foto_perfil' => $fotoPerfil,
                 'email_verified_at' => now(),
             ]);

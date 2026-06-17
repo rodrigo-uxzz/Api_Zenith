@@ -103,36 +103,4 @@ class PacienteController extends Controller
         }
     }
 
-    public function historicoSessoes()
-    {
-        try {
-
-            $id_paciente = auth()->user()->paciente->id_paciente;
-
-            $realizadas = Sessao::where('id_paciente', $id_paciente)
-                ->where('status_sessao', 'realizada')
-                ->with('psicologo.usuario')
-                ->orderBy('data_sessao', 'desc')
-                ->orderBy('hora_inicio', 'desc')
-                ->get();
-
-            $cancelamentos = Sessao::where('id_paciente', $id_paciente)
-                ->where('status_sessao', 'cancelada')
-                ->with('psicologo.usuario')
-                ->orderBy('data_sessao', 'desc')
-                ->orderBy('hora_inicio', 'desc')
-                ->get();
-
-            return response()->json([
-                'realizadas' => $realizadas,
-                'cancelamentos' => $cancelamentos,
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Erro ao buscar histótico de sessões',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
 }
