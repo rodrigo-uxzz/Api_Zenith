@@ -13,6 +13,7 @@ use App\Http\Controllers\PsicologosController;
 use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VerificarEmailController;
+use App\Http\Controllers\PushTokenController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -110,4 +111,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/enviar', [ChatController::class, 'enviar']);
     Route::get('/chat/historico/{id}', [ChatController::class, 'historico']);
     Route::patch('/chat/visualizar/{id_chat}', [ChatController::class, 'visualizar']);
+});
+
+// Rotas Notificação
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/save-push-token',[PushTokenController::class, 'store']);
+
 });
