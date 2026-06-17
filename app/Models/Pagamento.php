@@ -19,6 +19,7 @@ class Pagamento extends Model
         'tipo_pagamento',
         'status_pagamento',
         'valor_total',
+        'comprovante'
     ];
 
     public function sessao()
