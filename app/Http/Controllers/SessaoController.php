@@ -378,6 +378,7 @@ class SessaoController extends Controller
 
             $sessao->save();
 
+            // Sistema de Notificação não mexer!!
             $paciente = Paciente::find($sessao->id_paciente);
 
             if ($paciente) {
@@ -420,6 +421,7 @@ class SessaoController extends Controller
                     );
                     }
                 }
+            // Notificação acaba aqui
 
             DB::commit();
 

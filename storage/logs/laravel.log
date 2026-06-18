@@ -4401,3 +4401,14 @@
 [2026-06-18 12:14:11] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
 [2026-06-18 12:24:08] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
 [2026-06-18 12:24:09] local.INFO: Resposta Expo: {"data":{"status":"ok","id":"019edab0-54ed-70eb-83bd-d369fc575647"}} 
+[2026-06-18 12:53:20] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:57:52] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
+[2026-06-18 12:58:50] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
+[2026-06-18 12:59:47] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
+[2026-06-18 12:59:48] local.INFO: Resposta Expo: {"data":{"status":"ok","id":"019edad0-f741-71ab-a55b-8fc483e31d22"}} 
+[2026-06-18 13:00:32] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
+[2026-06-18 13:00:33] local.INFO: Resposta Expo: {"data":{"status":"ok","id":"019edad1-a6ea-7279-b10e-e75ba8291a7f"}} 
+[2026-06-18 13:03:27] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 13:08:13] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 13:08:59] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 13:10:49] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 

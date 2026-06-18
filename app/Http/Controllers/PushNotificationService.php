@@ -21,7 +21,7 @@ class PushNotificationService
 
         // Salva o log uma única vez por notificação enviada ao usuário
         NotificationLog::create([
-            'id_usuario' => $user->id,
+            'id_usuario' => $user->id_usuario,
             'title'      => $title,
             'body'       => $body,
             'data'       => $data,

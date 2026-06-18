@@ -13,7 +13,7 @@ class NotificationLogController extends Controller
      */
     public function index(Request $request)
     {
-        $notifications = NotificationLog::where('id_usuario', auth()->id())
+        $notifications = NotificationLog::where('id_usuario', auth()->user()->id_usuario)
             ->orderBy('sent_at', 'desc')
             ->get()
             ->map(fn($n) => [
