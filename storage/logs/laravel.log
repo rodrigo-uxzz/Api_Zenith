@@ -2646,6 +2646,7 @@
 [2026-06-17 20:04:12] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
 [2026-06-17 20:10:02] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
 [2026-06-17 20:10:02] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+<<<<<<< Updated upstream
 [2026-06-17 20:16:39] local.ERROR: Call to undefined method App\Http\Controllers\PacienteController::historicoSessoes() {"userId":34,"exception":"[object] (Error(code: 0): Call to undefined method App\\Http\\Controllers\\PacienteController::historicoSessoes() at C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php:46)
 [stacktrace]
 #0 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Routing/Route.php(265): Illuminate/Routing/ControllerDispatcher->dispatch(Object(Illuminate/Routing/Route), Object(App/Http/Controllers/PacienteController), 'historicoSessoe...')
@@ -4412,6 +4413,7 @@
 [2026-06-18 13:08:13] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
 [2026-06-18 13:08:59] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
 [2026-06-18 13:10:49] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+<<<<<<< HEAD
 [2026-06-18 14:13:09] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
 [2026-06-18 14:13:17] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
 [2026-06-18 14:14:30] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
@@ -4493,3 +4495,109 @@
 #37 {main}
 "} 
 [2026-06-18 16:19:14] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+=======
+=======
+[2026-06-17 20:16:17] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-17 20:16:17] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-17 20:16:44] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-17 20:16:44] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-17 20:16:44] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-17 20:16:44] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-17 20:22:53] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-17 20:22:53] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-17 20:38:49] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-17 20:38:49] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-17 20:39:27] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-17 20:39:27] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-17 23:51:19] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-17 23:51:19] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:12:38] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 03:12:38] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:23:24] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-18 03:23:24] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:23:29] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 03:23:29] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:28:32] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-18 03:28:32] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:28:34] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-18 03:28:34] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:28:37] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 03:28:37] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:28:40] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 03:28:40] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:30:06] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-18 03:30:06] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:30:07] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-18 03:30:07] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:30:09] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 03:30:09] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:37:20] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 03:37:20] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 03:41:34] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 03:41:34] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 04:15:15] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 04:15:15] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 04:18:16] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 04:18:16] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 04:22:38] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 04:22:38] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 04:23:47] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 04:23:47] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 04:31:12] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 04:31:12] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 04:37:41] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 04:37:41] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+>>>>>>> Stashed changes
+[2026-06-18 14:05:37] local.INFO: Tokens encontrados:  
+[2026-06-18 14:05:58] local.INFO: Tokens encontrados:  
+[2026-06-18 14:24:56] local.ERROR: Route [login] not defined. {"exception":"[object] (Symfony\\Component\\Routing\\Exception\\RouteNotFoundException(code: 0): Route [login] not defined. at C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Routing/UrlGenerator.php:528)
+[stacktrace]
+#0 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(870): Illuminate/Routing/UrlGenerator->route('login', Array, true)
+#1 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(278): route('login')
+#2 [internal function]: Illuminate/Foundation/Configuration/ApplicationBuilder->{closure:{closure:Illuminate/Foundation/Configuration/ApplicationBuilder::withMiddleware():276}:278}(Object(Illuminate/Http/Request))
+#3 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(117): call_user_func(Object(Closure), Object(Illuminate/Http/Request))
+#4 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(104): Illuminate/Auth/Middleware/Authenticate->redirectTo(Object(Illuminate/Http/Request))
+#5 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(87): Illuminate/Auth/Middleware/Authenticate->unauthenticated(Object(Illuminate/Http/Request), Array)
+#6 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php(61): Illuminate/Auth/Middleware/Authenticate->authenticate(Object(Illuminate/Http/Request), Array)
+#7 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Auth/Middleware/Authenticate->handle(Object(Illuminate/Http/Request), Object(Closure), 'sanctum')
+#8 C:/Api_Zenith/vendor/laravel/sanctum/src/Http/Middleware/EnsureFrontendRequestsAreStateful.php(26): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#9 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Laravel/Sanctum/Http/Middleware/EnsureFrontendRequestsAreStateful->{closure:Laravel/Sanctum/Http/Middleware/EnsureFrontendRequestsAreStateful::handle():25}(Object(Illuminate/Http/Request))
+#10 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate/Pipeline/Pipeline->{closure:Illuminate/Pipeline/Pipeline::prepareDestination():178}(Object(Illuminate/Http/Request))
+#11 C:/Api_Zenith/vendor/laravel/sanctum/src/Http/Middleware/EnsureFrontendRequestsAreStateful.php(25): Illuminate/Pipeline/Pipeline->then(Object(Closure))
+#12 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Laravel/Sanctum/Http/Middleware/EnsureFrontendRequestsAreStateful->handle(Object(Illuminate/Http/Request), Object(Closure))
+#13 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#14 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Routing/Router.php(821): Illuminate/Pipeline/Pipeline->then(Object(Closure))
+#15 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Routing/Router.php(800): Illuminate/Routing/Router->runRouteWithinStack(Object(Illuminate/Routing/Route), Object(Illuminate/Http/Request))
+#16 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Routing/Router.php(764): Illuminate/Routing/Router->runRoute(Object(Illuminate/Http/Request), Object(Illuminate/Routing/Route))
+#17 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Routing/Router.php(753): Illuminate/Routing/Router->dispatchToRoute(Object(Illuminate/Http/Request))
+#18 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(200): Illuminate/Routing/Router->dispatch(Object(Illuminate/Http/Request))
+#19 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate/Foundation/Http/Kernel->{closure:Illuminate/Foundation/Http/Kernel::dispatchToRouter():197}(Object(Illuminate/Http/Request))
+#20 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate/Pipeline/Pipeline->{closure:Illuminate/Pipeline/Pipeline::prepareDestination():178}(Object(Illuminate/Http/Request))
+#21 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate/Foundation/Http/Middleware/TransformsRequest->handle(Object(Illuminate/Http/Request), Object(Closure))
+#22 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull->handle(Object(Illuminate/Http/Request), Object(Closure))
+#23 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#24 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate/Foundation/Http/Middleware/TransformsRequest->handle(Object(Illuminate/Http/Request), Object(Closure))
+#25 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Foundation/Http/Middleware/TrimStrings->handle(Object(Illuminate/Http/Request), Object(Closure))
+#26 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#27 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Http/Middleware/ValidatePostSize->handle(Object(Illuminate/Http/Request), Object(Closure))
+#28 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(109): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#29 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance->handle(Object(Illuminate/Http/Request), Object(Closure))
+#30 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(74): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#31 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Http/Middleware/HandleCors->handle(Object(Illuminate/Http/Request), Object(Closure))
+#32 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#33 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Http/Middleware/TrustProxies->handle(Object(Illuminate/Http/Request), Object(Closure))
+#34 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#35 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks->handle(Object(Illuminate/Http/Request), Object(Closure))
+#36 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePathEncoding.php(26): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#37 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate/Http/Middleware/ValidatePathEncoding->handle(Object(Illuminate/Http/Request), Object(Closure))
+#38 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate/Pipeline/Pipeline->{closure:{closure:Illuminate/Pipeline/Pipeline::carry():194}:195}(Object(Illuminate/Http/Request))
+#39 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(175): Illuminate/Pipeline/Pipeline->then(Object(Closure))
+#40 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(144): Illuminate/Foundation/Http/Kernel->sendRequestThroughRouter(Object(Illuminate/Http/Request))
+#41 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate/Foundation/Http/Kernel->handle(Object(Illuminate/Http/Request))
+#42 C:/Api_Zenith/public/index.php(20): Illuminate/Foundation/Application->handleRequest(Object(Illuminate/Http/Request))
+#43 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('C://Api_Zenith//p...')
+#44 {main}
+"} 
+[2026-06-18 14:27:25] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
+[2026-06-18 14:27:26] local.ERROR: Erro ao enviar push: {"erro":"cURL error 60: SSL certificate OpenSSL verify result: unable to get local issuer certificate (20) (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://exp.host/--/api/v2/push/send"} 
+>>>>>>> 915f22c931a0e69feca12981a330bd335849de6f

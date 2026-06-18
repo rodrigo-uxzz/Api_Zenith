@@ -27,4 +27,8 @@ class Mensagem extends Model
     {
         return $this->belongsTo(User::class, 'id_remetente', 'id_usuario');
     }
+
+    protected $casts = [
+        'data_envio' => 'datetime',
+    ];
 }
