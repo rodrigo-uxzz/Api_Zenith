@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\PushToken;
+use App\Models\NotificationLog;
 use Illuminate\Support\Facades\Http;
 
 class PushNotificationService
@@ -13,13 +14,19 @@ class PushNotificationService
         string $title,
         string $body,
         array $data = []
-    )
-    {
-        $tokens =
-            $user->pushTokens()
-                 ->pluck('token');
+    ) {
+        $tokens = $user->pushTokens()->pluck('token');
 
         \Log::info('Tokens encontrados:', $tokens->toArray());
+
+        // Salva o log uma única vez por notificação enviada ao usuário
+        NotificationLog::create([
+            'id_usuario' => $user->id,
+            'title'      => $title,
+            'body'       => $body,
+            'data'       => $data,
+            'sent_at'    => now(),
+        ]);
 
         foreach ($tokens as $token) {
             try {

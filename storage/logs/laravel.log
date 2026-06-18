@@ -4154,3 +4154,250 @@
 [2026-06-18 03:33:56] local.INFO: save-push-token chamado {"user":42,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
 [2026-06-18 03:34:15] local.INFO: save-push-token chamado {"user":42,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
 [2026-06-18 03:34:15] local.INFO: save-push-token chamado {"user":42,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 09:59:04] local.ERROR: SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: zenith, SQL: select * from `cache` where `key` in (laravel-cache-laravel:reverb:restart)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: zenith, SQL: select * from `cache` where `key` in (laravel-cache-laravel:reverb:restart)) at C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php:838)
+[stacktrace]
+#0 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(794): Illuminate/Database/Connection->runQueryCallback('select * from `...', Array, Object(Closure))
+#1 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run('select * from `...', Array, Object(Closure))
+#2 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3475): Illuminate/Database/Connection->select('select * from `...', Array, true)
+#3 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3460): Illuminate/Database/Query/Builder->runSelect()
+#4 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4050): Illuminate/Database/Query/Builder->Illuminate/Database/Query/{closure}()
+#5 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3459): Illuminate/Database/Query/Builder->onceWithColumns(Array, Object(Closure))
+#6 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(140): Illuminate/Database/Query/Builder->get()
+#7 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(115): Illuminate/Cache/DatabaseStore->many(Array)
+#8 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(125): Illuminate/Cache/DatabaseStore->get('laravel:reverb:...')
+#9 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/CacheManager.php(558): Illuminate/Cache/Repository->get('laravel:reverb:...')
+#10 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate/Cache/CacheManager->__call('get', Array)
+#11 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(108): Illuminate/Support/Facades/Facade::__callStatic('get', Array)
+#12 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(73): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->ensureRestartCommandIsRespected(Object(Laravel/Reverb/Servers/Reverb/Http/Server), Object(React/EventLoop/StreamSelectLoop), '0.0.0.0', '8080')
+#13 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->handle()
+#14 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#15 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#16 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Array, Object(Closure))
+#17 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Array, Array, NULL)
+#18 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call(Array)
+#19 C:/Api_Zenith/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#20 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#21 C:/Api_Zenith/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#22 C:/Api_Zenith/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#23 C:/Api_Zenith/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#24 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#25 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#26 C:/Api_Zenith/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#27 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente at C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:66)
+[stacktrace]
+#0 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(66): PDO->__construct('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#1 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(44): Illuminate/Database/Connectors/Connector->createPdoConnection('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#2 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php(24): Illuminate/Database/Connectors/Connector->createConnection('mysql:host=127....', Array, Array)
+#3 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(186): Illuminate/Database/Connectors/MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate/Database/Connectors/ConnectionFactory->Illuminate/Database/Connectors/{closure}()
+#5 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1257): call_user_func(Object(Closure))
+#6 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1295): Illuminate/Database/Connection->getPdo()
+#7 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(525): Illuminate/Database/Connection->getReadPdo()
+#8 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(420): Illuminate/Database/Connection->getPdoForSelect(true)
+#9 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(827): Illuminate/Database/Connection->Illuminate/Database/{closure}('select * from `...', Array)
+#10 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(794): Illuminate/Database/Connection->runQueryCallback('select * from `...', Array, Object(Closure))
+#11 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run('select * from `...', Array, Object(Closure))
+#12 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3475): Illuminate/Database/Connection->select('select * from `...', Array, true)
+#13 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3460): Illuminate/Database/Query/Builder->runSelect()
+#14 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4050): Illuminate/Database/Query/Builder->Illuminate/Database/Query/{closure}()
+#15 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3459): Illuminate/Database/Query/Builder->onceWithColumns(Array, Object(Closure))
+#16 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(140): Illuminate/Database/Query/Builder->get()
+#17 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(115): Illuminate/Cache/DatabaseStore->many(Array)
+#18 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(125): Illuminate/Cache/DatabaseStore->get('laravel:reverb:...')
+#19 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/CacheManager.php(558): Illuminate/Cache/Repository->get('laravel:reverb:...')
+#20 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate/Cache/CacheManager->__call('get', Array)
+#21 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(108): Illuminate/Support/Facades/Facade::__callStatic('get', Array)
+#22 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(73): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->ensureRestartCommandIsRespected(Object(Laravel/Reverb/Servers/Reverb/Http/Server), Object(React/EventLoop/StreamSelectLoop), '0.0.0.0', '8080')
+#23 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->handle()
+#24 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#25 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#26 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Array, Object(Closure))
+#27 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Array, Array, NULL)
+#28 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call(Array)
+#29 C:/Api_Zenith/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#30 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#31 C:/Api_Zenith/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#32 C:/Api_Zenith/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#33 C:/Api_Zenith/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#34 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#35 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#36 C:/Api_Zenith/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#37 {main}
+"} 
+[2026-06-18 10:01:10] local.ERROR: SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: zenith, SQL: select * from `cache` where `key` in (laravel-cache-laravel:reverb:restart)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: zenith, SQL: select * from `cache` where `key` in (laravel-cache-laravel:reverb:restart)) at C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php:838)
+[stacktrace]
+#0 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(794): Illuminate/Database/Connection->runQueryCallback('select * from `...', Array, Object(Closure))
+#1 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run('select * from `...', Array, Object(Closure))
+#2 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3475): Illuminate/Database/Connection->select('select * from `...', Array, true)
+#3 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3460): Illuminate/Database/Query/Builder->runSelect()
+#4 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4050): Illuminate/Database/Query/Builder->Illuminate/Database/Query/{closure}()
+#5 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3459): Illuminate/Database/Query/Builder->onceWithColumns(Array, Object(Closure))
+#6 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(140): Illuminate/Database/Query/Builder->get()
+#7 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(115): Illuminate/Cache/DatabaseStore->many(Array)
+#8 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(125): Illuminate/Cache/DatabaseStore->get('laravel:reverb:...')
+#9 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/CacheManager.php(558): Illuminate/Cache/Repository->get('laravel:reverb:...')
+#10 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate/Cache/CacheManager->__call('get', Array)
+#11 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(108): Illuminate/Support/Facades/Facade::__callStatic('get', Array)
+#12 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(73): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->ensureRestartCommandIsRespected(Object(Laravel/Reverb/Servers/Reverb/Http/Server), Object(React/EventLoop/StreamSelectLoop), '0.0.0.0', '8080')
+#13 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->handle()
+#14 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#15 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#16 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Array, Object(Closure))
+#17 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Array, Array, NULL)
+#18 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call(Array)
+#19 C:/Api_Zenith/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#20 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#21 C:/Api_Zenith/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#22 C:/Api_Zenith/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#23 C:/Api_Zenith/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#24 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#25 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#26 C:/Api_Zenith/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#27 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente at C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:66)
+[stacktrace]
+#0 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(66): PDO->__construct('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#1 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(44): Illuminate/Database/Connectors/Connector->createPdoConnection('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#2 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php(24): Illuminate/Database/Connectors/Connector->createConnection('mysql:host=127....', Array, Array)
+#3 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(186): Illuminate/Database/Connectors/MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate/Database/Connectors/ConnectionFactory->Illuminate/Database/Connectors/{closure}()
+#5 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1257): call_user_func(Object(Closure))
+#6 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1295): Illuminate/Database/Connection->getPdo()
+#7 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(525): Illuminate/Database/Connection->getReadPdo()
+#8 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(420): Illuminate/Database/Connection->getPdoForSelect(true)
+#9 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(827): Illuminate/Database/Connection->Illuminate/Database/{closure}('select * from `...', Array)
+#10 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(794): Illuminate/Database/Connection->runQueryCallback('select * from `...', Array, Object(Closure))
+#11 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run('select * from `...', Array, Object(Closure))
+#12 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3475): Illuminate/Database/Connection->select('select * from `...', Array, true)
+#13 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3460): Illuminate/Database/Query/Builder->runSelect()
+#14 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4050): Illuminate/Database/Query/Builder->Illuminate/Database/Query/{closure}()
+#15 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3459): Illuminate/Database/Query/Builder->onceWithColumns(Array, Object(Closure))
+#16 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(140): Illuminate/Database/Query/Builder->get()
+#17 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(115): Illuminate/Cache/DatabaseStore->many(Array)
+#18 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(125): Illuminate/Cache/DatabaseStore->get('laravel:reverb:...')
+#19 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/CacheManager.php(558): Illuminate/Cache/Repository->get('laravel:reverb:...')
+#20 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate/Cache/CacheManager->__call('get', Array)
+#21 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(108): Illuminate/Support/Facades/Facade::__callStatic('get', Array)
+#22 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(73): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->ensureRestartCommandIsRespected(Object(Laravel/Reverb/Servers/Reverb/Http/Server), Object(React/EventLoop/StreamSelectLoop), '0.0.0.0', '8080')
+#23 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->handle()
+#24 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#25 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#26 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Array, Object(Closure))
+#27 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Array, Array, NULL)
+#28 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call(Array)
+#29 C:/Api_Zenith/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#30 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#31 C:/Api_Zenith/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#32 C:/Api_Zenith/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#33 C:/Api_Zenith/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#34 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#35 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#36 C:/Api_Zenith/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#37 {main}
+"} 
+[2026-06-18 10:02:17] local.ERROR: SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: zenith, SQL: select * from `cache` where `key` in (laravel-cache-laravel:reverb:restart)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: zenith, SQL: select * from `cache` where `key` in (laravel-cache-laravel:reverb:restart)) at C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php:838)
+[stacktrace]
+#0 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(794): Illuminate/Database/Connection->runQueryCallback('select * from `...', Array, Object(Closure))
+#1 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run('select * from `...', Array, Object(Closure))
+#2 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3475): Illuminate/Database/Connection->select('select * from `...', Array, true)
+#3 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3460): Illuminate/Database/Query/Builder->runSelect()
+#4 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4050): Illuminate/Database/Query/Builder->Illuminate/Database/Query/{closure}()
+#5 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3459): Illuminate/Database/Query/Builder->onceWithColumns(Array, Object(Closure))
+#6 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(140): Illuminate/Database/Query/Builder->get()
+#7 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(115): Illuminate/Cache/DatabaseStore->many(Array)
+#8 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(125): Illuminate/Cache/DatabaseStore->get('laravel:reverb:...')
+#9 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/CacheManager.php(558): Illuminate/Cache/Repository->get('laravel:reverb:...')
+#10 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate/Cache/CacheManager->__call('get', Array)
+#11 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(108): Illuminate/Support/Facades/Facade::__callStatic('get', Array)
+#12 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(73): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->ensureRestartCommandIsRespected(Object(Laravel/Reverb/Servers/Reverb/Http/Server), Object(React/EventLoop/StreamSelectLoop), '0.0.0.0', '8080')
+#13 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->handle()
+#14 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#15 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#16 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Array, Object(Closure))
+#17 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Array, Array, NULL)
+#18 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call(Array)
+#19 C:/Api_Zenith/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#20 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#21 C:/Api_Zenith/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#22 C:/Api_Zenith/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#23 C:/Api_Zenith/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#24 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#25 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#26 C:/Api_Zenith/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#27 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente at C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:66)
+[stacktrace]
+#0 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(66): PDO->__construct('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#1 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(44): Illuminate/Database/Connectors/Connector->createPdoConnection('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#2 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php(24): Illuminate/Database/Connectors/Connector->createConnection('mysql:host=127....', Array, Array)
+#3 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(186): Illuminate/Database/Connectors/MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate/Database/Connectors/ConnectionFactory->Illuminate/Database/Connectors/{closure}()
+#5 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1257): call_user_func(Object(Closure))
+#6 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1295): Illuminate/Database/Connection->getPdo()
+#7 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(525): Illuminate/Database/Connection->getReadPdo()
+#8 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(420): Illuminate/Database/Connection->getPdoForSelect(true)
+#9 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(827): Illuminate/Database/Connection->Illuminate/Database/{closure}('select * from `...', Array)
+#10 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(794): Illuminate/Database/Connection->runQueryCallback('select * from `...', Array, Object(Closure))
+#11 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Connection.php(411): Illuminate/Database/Connection->run('select * from `...', Array, Object(Closure))
+#12 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3475): Illuminate/Database/Connection->select('select * from `...', Array, true)
+#13 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3460): Illuminate/Database/Query/Builder->runSelect()
+#14 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(4050): Illuminate/Database/Query/Builder->Illuminate/Database/Query/{closure}()
+#15 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3459): Illuminate/Database/Query/Builder->onceWithColumns(Array, Object(Closure))
+#16 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(140): Illuminate/Database/Query/Builder->get()
+#17 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/DatabaseStore.php(115): Illuminate/Cache/DatabaseStore->many(Array)
+#18 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(125): Illuminate/Cache/DatabaseStore->get('laravel:reverb:...')
+#19 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Cache/CacheManager.php(558): Illuminate/Cache/Repository->get('laravel:reverb:...')
+#20 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate/Cache/CacheManager->__call('get', Array)
+#21 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(108): Illuminate/Support/Facades/Facade::__callStatic('get', Array)
+#22 C:/Api_Zenith/vendor/laravel/reverb/src/Servers/Reverb/Console/Commands/StartServer.php(73): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->ensureRestartCommandIsRespected(Object(Laravel/Reverb/Servers/Reverb/Http/Server), Object(React/EventLoop/StreamSelectLoop), '0.0.0.0', '8080')
+#23 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer->handle()
+#24 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::Illuminate/Container/{closure}()
+#25 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure(Object(Closure))
+#26 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod(Object(Illuminate/Foundation/Application), Array, Object(Closure))
+#27 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate/Container/BoundMethod::call(Object(Illuminate/Foundation/Application), Array, Array, NULL)
+#28 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate/Container/Container->call(Array)
+#29 C:/Api_Zenith/vendor/symfony/console/Command/Command.php(341): Illuminate/Console/Command->execute(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#30 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony/Component/Console/Command/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Illuminate/Console/OutputStyle))
+#31 C:/Api_Zenith/vendor/symfony/console/Application.php(1117): Illuminate/Console/Command->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#32 C:/Api_Zenith/vendor/symfony/console/Application.php(356): Symfony/Component/Console/Application->doRunCommand(Object(Laravel/Reverb/Servers/Reverb/Console/Commands/StartServer), Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#33 C:/Api_Zenith/vendor/symfony/console/Application.php(195): Symfony/Component/Console/Application->doRun(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#34 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony/Component/Console/Application->run(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#35 C:/Api_Zenith/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
+#36 C:/Api_Zenith/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
+#37 {main}
+"} 
+[2026-06-18 11:32:46] local.INFO: save-push-token chamado {"user":42,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:33:21] local.INFO: save-push-token chamado {"user":42,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:37:23] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:40:48] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:45:53] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:45:53] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:45:55] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:45:55] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:46:35] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:53:16] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:53:17] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 11:53:21] local.INFO: User: {"user":{"App\\Models\\User":{"id_usuario":4,"nome":"luiz","username":"gptelsson","email":"luizlindo@gmail.com","telefone":"11982143652","genero":"MASCULINO","data_nascimento":"2008-02-20","cpf":"22222222222","tipo_usuario":"paciente","status_usuario":"ativo","termos_aceitos":1,"foto_perfil":null,"created_at":"2026-03-07T17:24:46.000000Z","updated_at":"2026-03-07T21:11:58.000000Z"}}} 
+[2026-06-18 11:53:21] local.INFO: Paciente: {"paciente":{"App\\Models\\Paciente":{"id_paciente":1,"id_usuario":4,"observacoes":null,"status_paciente":"ativo","created_at":"2026-03-07T17:24:46.000000Z","updated_at":"2026-03-07T17:24:46.000000Z"}}} 
+[2026-06-18 12:04:01] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:05:57] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:05:58] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:05:59] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:05:59] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:06:08] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:06:08] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:06:10] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:06:10] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:06:27] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:06:27] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:08:35] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:08:35] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:08:45] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:08:45] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:14:11] local.INFO: save-push-token chamado {"user":4,"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]","all":{"token":"ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"}} 
+[2026-06-18 12:24:08] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
+[2026-06-18 12:24:09] local.INFO: Resposta Expo: {"data":{"status":"ok","id":"019edab0-54ed-70eb-83bd-d369fc575647"}} 

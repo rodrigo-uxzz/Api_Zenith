@@ -182,8 +182,9 @@ class FinanceiroController extends Controller
                 'comprovante' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5048',
             ]);
 
-            $pagamento = Pagamento::where('id_paciente', auth()->user()->paciente->id_paciente)
-                ->firstOrFail($id);
+            $pagamento = Pagamento::where('id_pagamento', $id)
+            ->where('id_paciente', auth()->user()->paciente->id_paciente)
+            ->firstOrFail();
 
             if ($pagamento->status_pagamento === 'pago') {
                 return response()->json([
@@ -198,11 +199,13 @@ class FinanceiroController extends Controller
             $caminho = $request->file('comprovante')->store('comprovantes', 'public');
 
             $pagamento->comprovante = $caminho;
+            $pagamento->status_pagamento = 'aguardando_confirmacao';
             $pagamento->save();
 
             DB::commit();
 
             return response()->json([
+                'error' => false,
                 'message' => 'Comprovante anexado com sucesso',
             ], 200);
 
@@ -211,7 +214,7 @@ class FinanceiroController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'error' => 'Erro ao anexar comprovante',
+                'error' => true,
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -243,6 +246,46 @@ class FinanceiroController extends Controller
 
             return response()->json([
                 'error' => 'Erro ao buscar comprovante',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function pagamentoPendente()
+    {
+        try {
+            $id_paciente = auth()->user()->paciente->id_paciente;
+
+            // Busca sessões agendadas futuras do paciente
+            $hoje = now()->toDateString();
+
+            $pagamento = Pagamento::where('pagamento.id_paciente', $id_paciente)
+                ->where('pagamento.status_pagamento', 'pendente')
+                ->whereHas('sessao', function ($q) use ($hoje) {
+                    $q->where('data_sessao', '>=', $hoje)
+                    ->where('status_sessao', 'agendada');
+                })
+                ->with(['sessao.psicologo.usuario'])
+                ->join('sessao', 'pagamento.id_sessao', '=', 'sessao.id_sessao')
+                ->orderBy('sessao.data_sessao', 'asc')
+                ->orderBy('sessao.hora_inicio', 'asc')
+                ->select('pagamento.*')
+                ->first();
+
+            if (!$pagamento) {
+                return response()->json([
+                    'message' => 'Nenhum pagamento pendente encontrado',
+                    'pagamento' => null,
+                ], 200);
+            }
+
+            return response()->json([
+                'pagamento' => $pagamento,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao buscar pagamento pendente',
                 'message' => $e->getMessage(),
             ], 500);
         }

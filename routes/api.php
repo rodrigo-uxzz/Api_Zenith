@@ -15,6 +15,7 @@ use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VerificarEmailController;
 use App\Http\Controllers\PushTokenController;
+use App\Http\Controllers\NotificationLogController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -108,8 +109,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/listarPagamentos', [FinanceiroController::class, 'listarPagamentos']);
     Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
     Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
-    Route::post('/anexarComprovante/{id}', [FinanceiroController::class, 'anexarComprovante']);
     Route::get('/verComprovante/{id}', [FinanceiroController::class, 'verComprovante']);
+    
+    Route::post('/anexarComprovante/{id}', [FinanceiroController::class, 'anexarComprovante']);
+    Route::get('/pagamento/pendente', [FinanceiroController::class, 'pagamentoPendente']);
 
 });
 // Rotas Chat
@@ -127,5 +130,5 @@ Route::middleware('auth:sanctum')->group(function () {
 // Rotas Notificação
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/save-push-token',[PushTokenController::class, 'store']);
-
+    Route::get('/notifications', [NotificationLogController::class, 'index']);
 });
