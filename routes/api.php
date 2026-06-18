@@ -54,7 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/verPsicologo/{id}', [PacienteController::class, 'verPsicologo']);
     Route::get('/minhasSessoes', [PacienteController::class, 'minhasSessoes']);
     Route::get('/pacienteHistorico', [PacienteController::class, 'historicoSessoes']);
-
+    Route::get('/meusPsicologos', [PacienteController::class, 'listarMeusPsicologos']);
 });
 
 // Rotas Psicologo
@@ -73,11 +73,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/storage/{path}', function ($path) {
     $fullPath = storage_path('app/public/' . $path);
-    
+
     if (!file_exists($fullPath)) {
         abort(404);
     }
-    
+
     return response()->file($fullPath);
 })->where('path', '.*');
 
@@ -120,7 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
     Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
     Route::get('/verComprovante/{id}', [FinanceiroController::class, 'verComprovante']);
-    
+
     Route::post('/anexarComprovante/{id}', [FinanceiroController::class, 'anexarComprovante']);
     Route::get('/pagamento/pendente', [FinanceiroController::class, 'pagamentoPendente']);
 
@@ -128,7 +128,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // Rotas Chat
 
 Route::middleware('auth:sanctum')->group(function () {
-    // ListarPsicologo na primeira tela, assim terei 
+    // ListarPsicologo na primeira tela, assim terei
     Route::post('/chat/iniciar', [ChatController::class, 'iniciarChat']); // Isso criar ou chama o chat, será a primeira ação do chat
     Route::post('/chat/enviar', [ChatController::class, 'enviar']); // Enviar o contéudo.
     Route::get('/chat/historico/{id}', [ChatController::class, 'historico']);

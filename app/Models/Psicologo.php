@@ -55,7 +55,13 @@ class Psicologo extends Authenticatable
         );
     }
 
-    public function usuario() {
+    public function usuario()
+    {
         return $this->belongsTo(User::class, 'id_usuario');
+    }
+
+    public function sessoes()
+    {
+        return $this->hasMany(Sessao::class, 'id_psicologo');
     }
 }

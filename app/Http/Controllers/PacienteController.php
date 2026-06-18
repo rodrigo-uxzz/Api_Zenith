@@ -73,6 +73,36 @@ class PacienteController extends Controller
         }
     }
 
+
+    public function listarMeusPsicologos()
+    {
+        try {
+
+            $paciente = auth()->user()->paciente;
+
+            $psicologos = User::where('tipo_usuario', 'psicologo')
+                ->where('status_usuario', 'ativo')
+                ->whereHas('psicologo.sessoes', function ($query) use ($paciente) {
+                    $query->where('id_paciente', $paciente->id_paciente);
+                })
+                ->with([
+                    'psicologo.usuario',
+
+                ])
+                ->get();
+
+            return response()->json([
+                'psicologos' => $psicologos,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao listar psicologos',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+
+    }
+
     public function minhasSessoes(){
         try{
 
