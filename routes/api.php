@@ -71,6 +71,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
+Route::get('/storage/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+    
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    
+    return response()->file($fullPath);
+})->where('path', '.*');
+
 // Rotas Agenda
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/horariosDisponiveis/{id_psicologo}', [AgendaController::class, 'horariosDisponiveis']);
@@ -118,8 +128,9 @@ Route::middleware('auth:sanctum')->group(function () {
 // Rotas Chat
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/chat/iniciar', [ChatController::class, 'iniciarChat']);
-    Route::post('/chat/enviar', [ChatController::class, 'enviar']);
+    // ListarPsicologo na primeira tela, assim terei 
+    Route::post('/chat/iniciar', [ChatController::class, 'iniciarChat']); // Isso criar ou chama o chat, será a primeira ação do chat
+    Route::post('/chat/enviar', [ChatController::class, 'enviar']); // Enviar o contéudo.
     Route::get('/chat/historico/{id}', [ChatController::class, 'historico']);
     Route::patch('/chat/visualizar/{id_chat}', [ChatController::class, 'visualizar']);
     Route::post('/broadcasting/auth', function (Illuminate\Http\Request $request) {

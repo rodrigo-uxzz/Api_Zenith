@@ -181,17 +181,18 @@ class SessaoController extends Controller
 
                 if ($usuario) {
 
-                    app(
-                        \App\Http\Controllers\PushNotificationService::class
-                    )->send(
-                        $usuario,
-                        'Cancelamento solicitado',
-                        'O psicólogo solicitou o cancelamento da sessão.',
-                        [
+                    app(PushNotificationService::class)->send(
+                    $usuario,
+                    'Cancelamento solicitado',
+                    'O psicólogo solicitou o cancelamento da sessão.',
+                    [
+                        'screen' => 'aprovacaoSol',
+                        'params' => [
                             'id_sessao' => $sessao->id_sessao,
                             'tipo' => 'cancelamento'
                         ]
-                    );
+                    ]
+                );
                 }
             }
 
@@ -281,17 +282,18 @@ class SessaoController extends Controller
 
                 if ($usuario) {
 
-                    app(
-                        \App\Http\Controllers\PushNotificationService::class
-                    )->send(
-                        $usuario,
-                        'Reagendamento solicitado',
-                        'O psicólogo propôs uma nova data para a sessão.',
-                        [
+                    app(PushNotificationService::class)->send(
+                    $usuario,
+                    'Reagendamento solicitado',
+                    'O psicólogo propôs uma nova data para a sessão.',
+                    [
+                        'screen' => 'aprovacaoSol',
+                        'params' => [
                             'id_sessao' => $sessao->id_sessao,
                             'tipo' => 'reagendamento'
                         ]
-                    );
+                    ]
+                );
                 }
             }
 
@@ -433,15 +435,17 @@ class SessaoController extends Controller
                             break;
                     }
 
-                    app(
-                        \App\Http\Controllers\PushNotificationService::class
-                    )->send(
+                    // aprovarSessao — paciente só precisa VER, não aprovar
+                    app(PushNotificationService::class)->send(
                         $usuario,
                         $titulo,
                         $mensagem,
                         [
-                            'id_sessao' => $sessao->id_sessao,
-                            'tipo' => $statusAnterior
+                            'screen' => 'notificacao',   // ← era 'aprovacaoSol', corrigido
+                            'params' => [
+                                'id_sessao' => $sessao->id_sessao,
+                                'tipo'      => $statusAnterior,
+                            ]
                         ]
                     );
                     }
@@ -530,14 +534,16 @@ class SessaoController extends Controller
                 $usuario = User::find($paciente->id_usuario);
 
                 if ($usuario) {
-                    app(
-                        \App\Http\Controllers\PushNotificationService::class
-                    )->send(
+                    app(PushNotificationService::class)->send(
                         $usuario,
                         'Solicitação recusada',
-                        'O psicólogo recusou sua solicitação.',
+                        'Sua solicitação foi recusada.',
                         [
-                            'id_sessao' => $sessao->id_sessao
+                            'screen' => 'notificacao',
+                            'params' => [
+                                'id_sessao' => $sessao->id_sessao,
+                                'tipo' => $sessao->status_sessao
+                            ]
                         ]
                     );
                 }
@@ -603,14 +609,16 @@ class SessaoController extends Controller
             $psicologo = Psicologo::find($sessao->id_psicologo);
             $usuario = User::find($psicologo->id_usuario);
 
-            app(
-                \App\Http\Controllers\PushNotificationService::class
-            )->send(
+            app(PushNotificationService::class)->send(
                 $usuario,
                 'Cancelamento solicitado',
-                'O Psicólogo solicitou o cancelamento da sessão.',
+                'O psicologo solicitou o cancelamento da sessão.',
                 [
-                    'id_sessao' => $sessao->id_sessao
+                    'screen' => 'aprovacaoSol',
+                    'params' => [
+                        'id_sessao' => $sessao->id_sessao,
+                        'tipo' => 'cancelamento'
+                    ]
                 ]
             );
 
@@ -686,14 +694,16 @@ class SessaoController extends Controller
             $psicologo = Psicologo::find($sessao->id_psicologo);
             $usuario = User::find($psicologo->id_usuario);
 
-            app(
-                \App\Http\Controllers\PushNotificationService::class
-            )->send(
+            app(PushNotificationService::class)->send(
                 $usuario,
                 'Reagendamento solicitado',
-                'O Psicólogo solicitou um reagendamento.',
+                'O paciente solicitou um reagendamento.',
                 [
-                    'id_sessao' => $sessao->id_sessao
+                    'screen' => 'aprovacaoSol',
+                    'params' => [
+                        'id_sessao' => $sessao->id_sessao,
+                        'tipo' => 'reagendamento'
+                    ]
                 ]
             );
 

@@ -236,7 +236,7 @@ class FinanceiroController extends Controller
                 ], 404);
             }
 
-            $url = Storage::disk('public')->url($pagamento->comprovante);
+            $url = url('api/storage/' . $pagamento->comprovante);
 
             return response()->json([
                 'comprovante' => $url,
