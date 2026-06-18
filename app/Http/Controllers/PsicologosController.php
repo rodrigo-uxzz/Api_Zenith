@@ -52,7 +52,11 @@ class PsicologosController extends Controller
                 ->whereHas('paciente.sessoes', function ($query) use ($psicologo) {
                     $query->where('id_psicologo', $psicologo->id_psicologo);
                 })
-                ->with('paciente')
+                ->with([
+                    'paciente',
+                    'paciente.sessoes',
+                    
+                ])
                 ->get();
 
             return response()->json([
