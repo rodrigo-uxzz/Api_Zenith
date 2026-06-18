@@ -55,7 +55,7 @@ class PsicologosController extends Controller
                 ->with([
                     'paciente',
                     'paciente.sessoes',
-                    
+
                 ])
                 ->get();
 
@@ -130,6 +130,8 @@ class PsicologosController extends Controller
                     'pendente',
                     'cancelamento_solicitado',
                     'reagendamento_solicitado',
+                    'cancelamentoPsicologo',
+                    'reagendamentoPsicologo',
                 ])
                 ->orderBy('hora_inicio')
                 ->with('paciente.usuario')

@@ -36,6 +36,8 @@ class SessaoController extends Controller
                     'agendada',
                     'cancelamento_solicitado',
                     'reagendamento_solicitado',
+                    'cancelamentoPsicologo',
+                    'reagendamentoPsicologo',
                 ])
                 ->exists();
 
@@ -167,7 +169,7 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $sessao->status_sessao = 'cancelamento_solicitado';
+            $sessao->status_sessao = 'cancelamentoPsicologo';
             $sessao->observacoes = $motivo;
             $sessao->save();
 
@@ -254,6 +256,9 @@ class SessaoController extends Controller
                     'agendada',
                     'cancelamento_solicitado',
                     'reagendamento_solicitado',
+                    'cancelamentoPsicologo',
+                    'reagendamentoPsicologo',
+
                 ])
                 ->exists();
 
@@ -263,7 +268,7 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $sessao->status_sessao = 'reagendamento_solicitado';
+            $sessao->status_sessao = 'reagendamentoPsicologo';
             $sessao->data_solicitada = $nova_data;
             $sessao->hora_solicitada = $nova_hora;
             $sessao->save();
@@ -334,13 +339,13 @@ class SessaoController extends Controller
         try {
 
             $sessao = Sessao::find($id_sessao);
-            
+
             if (! $sessao) {
                 return response()->json([
                     'error' => 'Consulta não encontrada',
                 ], 404);
             }
-            
+
             $statusAnterior = $sessao->status_sessao;
 
 
@@ -374,6 +379,26 @@ class SessaoController extends Controller
                 $sessao->hora_solicitada = null;
 
                 $sessao->status_sessao = 'agendada';
+            } elseif ($sessao->status_sessao === 'cancelamentoPsicologo') {
+
+                $sessao->status_sessao = 'cancelada';
+                $sessao->observacoes = null;
+
+            } elseif ($sessao->status_sessao === 'reagendamentoPsicologo') {
+
+                $sessao->data_sessao = $sessao->data_solicitada;
+                $sessao->hora_inicio = $sessao->hora_solicitada;
+                $sessao->hora_fim = Carbon::parse($sessao->hora_solicitada)
+                    ->addMinutes(50)
+                    ->format('H:i');
+                $sessao->data_solicitada = null;
+                $sessao->hora_solicitada = null;
+
+                $sessao->status_sessao = 'agendada';
+            } else {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
             }
 
             $sessao->save();
@@ -479,6 +504,21 @@ class SessaoController extends Controller
 
                 $sessao->status_sessao = 'agendada';
 
+            } elseif ($sessao->status_sessao === 'cancelamentoPsicologo') {
+
+                $sessao->status_sessao = 'agendada';
+
+            } elseif ($sessao->status_sessao === 'reagendamentoPsicologo') {
+
+                $sessao->data_solicitada = null;
+                $sessao->hora_solicitada = null;
+
+                $sessao->status_sessao = 'agendada';
+
+            } else {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
             }
 
             $sessao->observacoes = $motivo;
