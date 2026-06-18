@@ -126,25 +126,25 @@ class UsersController extends Controller
     // CADASTRO PACIENTE
     public function cadastroPaciente(Request $request)
     {
-        // VERIFICAÇÃO DE EMAIL
-        $verificacao = verificarEmail::where('email', $request->email)
-            ->where('codigo', $request->code)
-            ->first();
+        // // VERIFICAÇÃO DE EMAIL
+        // $verificacao = verificarEmail::where('email', $request->email)
+        //     ->where('codigo', $request->code)
+        //     ->first();
 
-        if (!$verificacao) {
-            return response()->json([
-                'error' => 'Email não verificado',
-                'message' => 'Código inválido. Verifique seu email e tente novamente.',
-            ], 403);
-        }
+        // if (!$verificacao) {
+        //     return response()->json([
+        //         'error' => 'Email não verificado',
+        //         'message' => 'Código inválido. Verifique seu email e tente novamente.',
+        //     ], 403);
+        // }
 
-        if (now()->isAfter($verificacao->expiracao)) {
-            $verificacao->delete();
-            return response()->json([
-                'error' => 'Código expirado',
-                'message' => 'Seu código expirou. Solicite um novo código.',
-            ], 403);
-        }
+        // if (now()->isAfter($verificacao->expiracao)) {
+        //     $verificacao->delete();
+        //     return response()->json([
+        //         'error' => 'Código expirado',
+        //         'message' => 'Seu código expirou. Solicite um novo código.',
+        //     ], 403);
+        // }
 
         DB::beginTransaction();
         try {
@@ -196,7 +196,7 @@ class UsersController extends Controller
                 'status_paciente' => 'ativo',
             ]);
 
-            $verificacao->delete();
+            // $verificacao->delete();
 
             DB::commit();
 

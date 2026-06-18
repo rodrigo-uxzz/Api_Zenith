@@ -54,7 +54,7 @@ class RecuperarSenhaController extends Controller
 
         if (! $verificacao) {
             return response()->json([
-                'error' => 'Código inválido',
+                'error' => true,
                 'message' => 'Verifique o código e tente novamente.',
             ], 422);
         }
@@ -63,12 +63,13 @@ class RecuperarSenhaController extends Controller
             $verificacao->delete();
 
             return response()->json([
-                'error' => 'Código expirado',
+                'error' => true,
                 'message' => 'Solicite um novo código.',
             ], 422);
         }
 
         return response()->json([
+            'error' => false,
             'message' => 'Código válido! Prossiga para redefinir a senha.',
         ], 200);
     }
@@ -89,7 +90,7 @@ class RecuperarSenhaController extends Controller
 
         if (! $verificacao) {
             return response()->json([
-                'error' => 'Código inválido',
+                'error' => true,
                 'message' => 'Verifique o código e tente novamente.',
             ], 422);
         }
@@ -98,7 +99,7 @@ class RecuperarSenhaController extends Controller
             $verificacao->delete();
 
             return response()->json([
-                'error' => 'Código expirado',
+                'error' => true,
                 'message' => 'Solicite um novo código.',
             ], 422);
         }
@@ -115,6 +116,7 @@ class RecuperarSenhaController extends Controller
             DB::commit();
 
             return response()->json([
+                'error' => false,
                 'message' => 'Senha redefinida com sucesso!',
             ], 200);
 
