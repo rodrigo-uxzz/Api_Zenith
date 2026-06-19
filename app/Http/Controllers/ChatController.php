@@ -19,13 +19,15 @@ class ChatController extends Controller
 
         try {
             $request->validate([
-                'id_paciente' => 'required|exists:paciente,id_paciente',
                 'id_psicologo' => 'required|exists:psicologo,id_psicologo',
             ]);
 
+            // ✅ pega o paciente do usuário autenticado
+            $id_paciente = auth()->user()->paciente->id_paciente;
+
             $chat = Chat::firstOrCreate(
                 [
-                    'id_paciente' => $request->id_paciente,
+                    'id_paciente' => $id_paciente,
                     'id_psicologo' => $request->id_psicologo,
                 ],
                 [
