@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\AuthAdminsController;
 use App\Http\Controllers\AuthUserController;
+use App\Http\Controllers\AvaliacaoController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FinanceiroController;
 use App\Http\Controllers\LinkController;
@@ -159,4 +160,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/link', [LinkController::class, 'salvarLinkFixo']);
     Route::put('/link/sessao/{id_sessao}', [LinkController::class, 'salvarLinkSessao']);
     Route::get('/link/sessao/{id_sessao}', [LinkController::class, 'linkParaEntrar']);
+});
+
+//Rotas Avaliação
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/avaliacao/{id_psicologo}', [AvaliacaoController::class, 'avaliar']);
 });

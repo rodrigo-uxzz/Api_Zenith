@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Avaliacao;
 use App\Models\Psicologo;
 use App\Models\Sessao;
-use App\Models\Paciente;
 use App\Models\User;
 
 class PacienteController extends Controller
@@ -13,33 +12,40 @@ class PacienteController extends Controller
     public function verPsicologo($id)
     {
 
-        try{
+        try {
             $psicologo = Psicologo::where('id_usuario', $id)
-            ->where('status_psicologo', 'aprovado')
-            ->with([
-                'abordagens',
-                'especialidades',
-                'atendimentos',
-            ])
-            ->first();
+                ->where('status_psicologo', 'aprovado')
+                ->with([
+                    'abordagens',
+                    'especialidades',
+                    'atendimentos',
+                ])
+                ->first();
 
-            if (!$psicologo) {
+            if (! $psicologo) {
                 return response()->json([
-                    'error' => 'Psicólogo não encontrado'
+                    'error' => 'Psicólogo não encontrado',
                 ], 404);
             }
 
             $user = User::find($psicologo->id_usuario);
 
+            $media = Avaliacao::where('id_psicologo', $psicologo->id_psicologo)->avg('nota');
+            $total = Avaliacao::where('id_psicologo', $psicologo->id_psicologo)->count();
+
             return response()->json([
                 'user' => $user,
-                'psicologo' => $psicologo
+                'psicologo' => $psicologo,
+                'avaliacao' => [
+                    'media' => round($media ?? 0, 1),
+                    'total' => $total,
+                ],
             ], 200);
 
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao buscar psicólogo',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
 
@@ -49,30 +55,39 @@ class PacienteController extends Controller
     {
         try {
             $psicologos = User::where('tipo_usuario', 'psicologo')
-            ->where('status_usuario', 'ativo')
-            ->with([
-                'psicologo',
-                'psicologo.abordagens',
-                'psicologo.especialidades',
-                'psicologo.atendimentos',
-            ])
-            ->whereHas('psicologo', function ($query) {
-                $query->where('status_psicologo', 'aprovado');
-            })
-            ->get();
+                ->where('status_usuario', 'ativo')
+                ->with([
+                    'psicologo',
+                    'psicologo.abordagens',
+                    'psicologo.especialidades',
+                    'psicologo.atendimentos',
+                ])
+                ->whereHas('psicologo', function ($query) {
+                    $query->where('status_psicologo', 'aprovado');
+                })
+                ->get();
+
+            $psicologos->each(function ($user) {
+                $id = $user->psicologo->id_psicologo;
+                $media = Avaliacao::where('id_psicologo', $id)->avg('nota');
+                $total = Avaliacao::where('id_psicologo', $id)->count();
+                $user->psicologo->avaliacao = [
+                    'media' => round($media ?? 0, 1),
+                    'total' => $total,
+                ];
+            });
 
             return response()->json([
-                'psicologos' => $psicologos
+                'psicologos' => $psicologos,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao listar psicólogos',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function listarMeusPsicologos()
     {
@@ -103,8 +118,9 @@ class PacienteController extends Controller
 
     }
 
-    public function minhasSessoes(){
-        try{
+    public function minhasSessoes()
+    {
+        try {
 
             $id_paciente = auth()->user()->paciente->id_paciente;
 
@@ -114,7 +130,7 @@ class PacienteController extends Controller
                 ->orderBy('hora_inicio', 'desc')
                 ->get();
 
-            if($sessoes->isEmpty()){
+            if ($sessoes->isEmpty()) {
                 return response()->json([
                     'message' => 'Nenhuma sessão encontrada',
                     'sessoes' => $sessoes,
@@ -125,7 +141,7 @@ class PacienteController extends Controller
                 'sessoes' => $sessoes,
             ], 200);
 
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao buscar sessões',
                 'message' => $e->getMessage(),
@@ -165,5 +181,4 @@ class PacienteController extends Controller
             ], 500);
         }
     }
-
 }
