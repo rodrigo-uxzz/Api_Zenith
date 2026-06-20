@@ -183,8 +183,8 @@ class FinanceiroController extends Controller
             ]);
 
             $pagamento = Pagamento::where('id_pagamento', $id)
-            ->where('id_paciente', auth()->user()->paciente->id_paciente)
-            ->firstOrFail();
+                ->where('id_paciente', auth()->user()->paciente->id_paciente)
+                ->firstOrFail();
 
             if ($pagamento->status_pagamento === 'pago') {
                 return response()->json([
@@ -236,7 +236,7 @@ class FinanceiroController extends Controller
                 ], 404);
             }
 
-            $url = url('api/storage/' . $pagamento->comprovante);
+            $url = url('api/storage/'.$pagamento->comprovante);
 
             return response()->json([
                 'comprovante' => $url,
@@ -263,7 +263,7 @@ class FinanceiroController extends Controller
                 ->where('pagamento.status_pagamento', 'pendente')
                 ->whereHas('sessao', function ($q) use ($hoje) {
                     $q->where('data_sessao', '>=', $hoje)
-                    ->where('status_sessao', 'agendada');
+                        ->where('status_sessao', 'agendada');
                 })
                 ->with(['sessao.psicologo.usuario'])
                 ->join('sessao', 'pagamento.id_sessao', '=', 'sessao.id_sessao')
@@ -272,7 +272,7 @@ class FinanceiroController extends Controller
                 ->select('pagamento.*')
                 ->first();
 
-            if (!$pagamento) {
+            if (! $pagamento) {
                 return response()->json([
                     'message' => 'Nenhum pagamento pendente encontrado',
                     'pagamento' => null,
@@ -286,6 +286,45 @@ class FinanceiroController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao buscar pagamento pendente',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function listarPagamentosSemanal(Request $request)
+    {
+        try {
+            $data = $request->data ?? now()->toDateString();
+            $dataCarbon = Carbon::parse($data);
+
+            // Semana de domingo a sábado da data informada
+            $inicioSemana = $dataCarbon->copy()->startOfWeek(Carbon::SUNDAY);
+            $fimSemana = $dataCarbon->copy()->endOfWeek(Carbon::SATURDAY);
+
+            $idPsicologo = auth()->user()->psicologo->id_psicologo;
+
+            $pagamentos = Pagamento::with('paciente.usuario', 'sessao')
+                ->whereHas('sessao', function ($query) use ($idPsicologo, $inicioSemana, $fimSemana) {
+                    $query->where('id_psicologo', $idPsicologo)
+                        ->whereBetween('data_sessao', [
+                            $inicioSemana->toDateString(),
+                            $fimSemana->toDateString(),
+                        ])
+                        ->where('status_sessao', '!=', 'cancelada')
+                        ->where('status_sessao', '!=', 'recusada');
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'pagamentos' => $pagamentos,
+                'inicio_semana' => $inicioSemana->toDateString(),
+                'fim_semana' => $fimSemana->toDateString(),
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao listar pagamentos semanais',
                 'message' => $e->getMessage(),
             ], 500);
         }

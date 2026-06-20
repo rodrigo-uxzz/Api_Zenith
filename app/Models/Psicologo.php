@@ -21,6 +21,11 @@ class Psicologo extends Authenticatable
         'duracao_consulta',
         'intervalo_consulta',
         'avaliacao',
+        'pix_tipo',
+        'pix_chave',
+        'pix_nome_recebedor',
+        'pix_cidade',
+        'link_consulta',
     ];
 
     // App/Models/Psicologo.php

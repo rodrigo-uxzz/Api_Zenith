@@ -21,6 +21,7 @@ class Sessao extends Model
         'hora_solicitada',
         'observacoes',
         'anotacoes',
+        'link_sessao',
     ];
 
     public function paciente()

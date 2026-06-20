@@ -7,18 +7,19 @@ use App\Http\Controllers\AuthAdminsController;
 use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FinanceiroController;
+use App\Http\Controllers\LinkController;
+use App\Http\Controllers\NotificationLogController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\PixController;
 use App\Http\Controllers\PsicologoDashboardController;
 use App\Http\Controllers\PsicologosController;
+use App\Http\Controllers\PushTokenController;
 use App\Http\Controllers\RecuperarSenhaController;
 use App\Http\Controllers\SessaoController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VerificarEmailController;
-use App\Http\Controllers\PushTokenController;
-use App\Http\Controllers\NotificationLogController;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
-
+use Illuminate\Support\Facades\Route;
 
 // use Illuminate\Support\Facades\Mail;
 // use App\Mail\AgendamentoSessao;
@@ -72,9 +73,9 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/storage/{path}', function ($path) {
-    $fullPath = storage_path('app/public/' . $path);
+    $fullPath = storage_path('app/public/'.$path);
 
-    if (!file_exists($fullPath)) {
+    if (! file_exists($fullPath)) {
         abort(404);
     }
 
@@ -86,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/horariosDisponiveis/{id_psicologo}', [AgendaController::class, 'horariosDisponiveis']);
     Route::post('/marcarEvento', [AgendaController::class, 'marcarEvento']);
     Route::post('/configurarAgenda', [AgendaController::class, 'configurarAgenda']);
+    Route::get('/psicologo/agenda/semanal', [PsicologosController::class, 'consultasDaSemana']);
 });
 
 // Rotas Sessão
@@ -120,7 +122,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
     Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
     Route::get('/verComprovante/{id}', [FinanceiroController::class, 'verComprovante']);
-
+    Route::get('/financeiro/pagamentos/semanal', [FinanceiroController::class, 'listarPagamentosSemanal']);
     Route::post('/anexarComprovante/{id}', [FinanceiroController::class, 'anexarComprovante']);
     Route::get('/pagamento/pendente', [FinanceiroController::class, 'pagamentoPendente']);
 
@@ -140,6 +142,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Rotas Notificação
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/save-push-token',[PushTokenController::class, 'store']);
+    Route::post('/save-push-token', [PushTokenController::class, 'store']);
     Route::get('/notifications', [NotificationLogController::class, 'index']);
+});
+
+//Rotas pix
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/pix', [PixController::class, 'buscar']);
+    Route::put('/pix', [PixController::class, 'salvar']);
+    Route::get('/pix/pagamento/{id_pagamento}', [PixController::class, 'dadosPagamento']);
+});
+
+//Rotas link da consulta
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/link', [LinkController::class, 'buscarLinkFixo']);
+    Route::put('/link', [LinkController::class, 'salvarLinkFixo']);
+    Route::put('/link/sessao/{id_sessao}', [LinkController::class, 'salvarLinkSessao']);
+    Route::get('/link/sessao/{id_sessao}', [LinkController::class, 'linkParaEntrar']);
 });

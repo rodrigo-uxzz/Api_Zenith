@@ -4683,3 +4683,19 @@
 "} 
 [2026-06-18 20:26:46] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
 [2026-06-18 20:26:46] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 20:37:14] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 20:37:14] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 23:07:18] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 23:07:18] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-18 23:55:12] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-18 23:55:12] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-19 00:08:26] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"3"} 
+[2026-06-19 00:08:26] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-19 00:08:28] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-19 00:08:28] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-19 00:40:47] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-19 00:40:47] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-20 12:36:33] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-20 12:36:33] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-20 12:48:35] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-20 12:48:35] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
