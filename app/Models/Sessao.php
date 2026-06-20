@@ -33,4 +33,9 @@ class Sessao extends Model
     {
         return $this->belongsTo(Psicologo::class, 'id_psicologo');
     }
+
+    public function pagamento()
+    {
+        return $this->hasOne(Pagamento::class, 'id_sessao');
+    }
 }

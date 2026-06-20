@@ -55,6 +55,7 @@ class PsicologosController extends Controller
                 ->with([
                     'paciente',
                     'paciente.sessoes',
+                    'paciente.sessoes.pagamento', 
 
                 ])
                 ->get();

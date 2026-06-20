@@ -4767,3 +4767,11 @@
 #25 Command line code(1): Illuminate/Foundation/Console/Kernel->handle(Object(Symfony/Component/Console/Input/ArgvInput), Object(Symfony/Component/Console/Output/ConsoleOutput))
 #26 {main}
 "} 
+[2026-06-20 22:07:14] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
+[2026-06-20 22:07:14] local.ERROR: Erro ao enviar push: {"erro":"cURL error 60: SSL certificate OpenSSL verify result: unable to get local issuer certificate (20) (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://exp.host/--/api/v2/push/send"} 
+[2026-06-20 22:07:15] local.INFO: Tokens encontrados: ["ExponentPushToken[lCaXwkNIadX3RsyZ7W5W6i]"] 
+[2026-06-20 22:07:15] local.ERROR: Erro ao enviar push: {"erro":"cURL error 60: SSL certificate OpenSSL verify result: unable to get local issuer certificate (20) (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://exp.host/--/api/v2/push/send"} 
+[2026-06-20 22:58:31] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-20 22:58:31] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
+[2026-06-20 23:00:05] local.INFO: Broadcasting auth tentativa {"id_usuario":3,"id":"NULL","id_chat":"2"} 
+[2026-06-20 23:00:05] local.INFO: Broadcasting auth resultado {"paciente":"NULL","psicologo":2} 
