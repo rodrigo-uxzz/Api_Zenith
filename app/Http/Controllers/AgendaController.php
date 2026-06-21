@@ -61,6 +61,8 @@ class AgendaController extends Controller
                             'agendada',
                             'cancelamento_solicitado',
                             'reagendamento_solicitado',
+                            'cancelamentoPsicologo',
+                            'reagendamentoPsicologo',
                         ])
                         ->when($id_sessao, function ($query) use ($id_sessao) {
                             $query->where('id_sessao', '!=', $id_sessao);
@@ -114,7 +116,7 @@ class AgendaController extends Controller
             $psicologo->save();
 
             $id_psicologo = $psicologo->id_psicologo;
-            
+
             $request->validate([
                 'agendas' => 'required|array|min:1',
                 'agendas.*.dia_semana' => 'required|integer|min:0|max:6',
@@ -130,6 +132,8 @@ class AgendaController extends Controller
                     'realizada',
                     'reagendamento_solicitado',
                     'cancelamento_solicitado',
+                    'cancelamentoPsicologo',
+                    'reagendamentoPsicologo',
                 ])
                 ->orderBy('data_sessao', 'desc')
                 ->orderBy('hora_fim', 'desc')
@@ -239,6 +243,8 @@ class AgendaController extends Controller
                     'pendente',
                     'agendada',
                     'reagendamento_solicitado',
+                    'cancelamentoPsicologo',
+                    'reagendamentoPsicologo',
                 ])
                 ->where(function ($q) use ($request) {
                     $q->where('hora_inicio', '<', $request->hora_fim)

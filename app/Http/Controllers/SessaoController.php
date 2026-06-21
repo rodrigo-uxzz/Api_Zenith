@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pagamento;
+use App\Models\Psicologo;
+use App\Models\Paciente;
+use App\Models\User;
 use App\Models\Sessao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\PushNotificationService;
 
 class SessaoController extends Controller
 {
@@ -15,10 +20,13 @@ class SessaoController extends Controller
 
         try {
 
+            $id_paciente = auth()->user()->paciente->id_paciente;
+
             $id_psicologo = $request->id_psicologo;
-            $id_paciente = $request->id_paciente;
             $data_sessao = $request->data_sessao;
             $hora_inicio = $request->hora_inicio;
+
+            $psicologo = Psicologo::find($request->id_psicologo);
 
             $ocupado = Sessao::where('id_psicologo', $id_psicologo)
                 ->where('data_sessao', $data_sessao)
@@ -28,6 +36,8 @@ class SessaoController extends Controller
                     'agendada',
                     'cancelamento_solicitado',
                     'reagendamento_solicitado',
+                    'cancelamentoPsicologo',
+                    'reagendamentoPsicologo',
                 ])
                 ->exists();
 
@@ -54,15 +64,26 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $hora_fim = date('H:i', strtotime('+50 minutes', strtotime($hora_inicio)));
+            $hora_fim = Carbon::parse($hora_inicio)
+                ->addMinutes(50)
+                ->format('H:i:s');
 
-            Sessao::create([
+            $sessao = Sessao::create([
                 'id_psicologo' => $id_psicologo,
                 'id_paciente' => $id_paciente,
                 'data_sessao' => $data_sessao,
                 'hora_inicio' => $hora_inicio,
                 'hora_fim' => $hora_fim,
                 'status_sessao' => 'pendente',
+                'valor' => $psicologo->preco_sessao,
+            ]);
+
+            $pagamento = Pagamento::create([
+                'id_sessao' => $sessao->id_sessao,
+                'id_paciente' => $id_paciente,
+                'id_psicologo' => $id_psicologo,
+                'valor_total' => $psicologo->preco_sessao,
+                'status_pagamento' => 'pendente',
             ]);
 
             DB::commit();
@@ -125,17 +146,6 @@ class SessaoController extends Controller
                     'error' => 'Sessão não encontrada',
                 ], 404);
             }
-            $dataSessao = Carbon::parse(
-                $sessao->data_sessao.' '.$sessao->hora_inicio
-            );
-
-            $agora = Carbon::now();
-
-            if ($agora->diffInHours($dataSessao, false) < 24) {
-                return response()->json([
-                    'error' => 'Só é possível cancelar com no mínimo 24h de antecedência',
-                ], 400);
-            }
 
             $motivo = $request->motivo;
 
@@ -145,22 +155,58 @@ class SessaoController extends Controller
                 ], 400);
             }
 
-            $sessao->anotacoes = $motivo;
+            if ($sessao->status_sessao !== 'agendada') {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
+            }
 
-            $sessao->status_sessao = 'cancelada';
+            $dataSessao = Carbon::parse($sessao->data_sessao.' '.$sessao->hora_inicio);
+
+            if (Carbon::now()->diffInHours($dataSessao, false) < 24) {
+                return response()->json([
+                    'error' => 'Só é possível solicitar cancelamento com no mínimo 24h de antecedência',
+                ], 400);
+            }
+
+            $sessao->status_sessao = 'cancelamentoPsicologo';
+            $sessao->observacoes = $motivo;
             $sessao->save();
+
+            $paciente = Paciente::find($sessao->id_paciente);
+
+            if ($paciente) {
+
+                $usuario = User::find($paciente->id_usuario);
+
+                if ($usuario) {
+
+                    app(PushNotificationService::class)->send(
+                    $usuario,
+                    'Cancelamento solicitado',
+                    'O psicólogo solicitou o cancelamento da sessão.',
+                    [
+                        'screen' => 'aprovacaoSol',
+                        'params' => [
+                            'id_sessao' => $sessao->id_sessao,
+                            'tipo' => 'cancelamento'
+                        ]
+                    ]
+                );
+                }
+            }
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Sessão cancelada com sucesso',
+                'message' => 'Solicitação de cancelamento enviada com sucesso',
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'error' => 'Erro ao cancelar sessão',
+                'error' => 'Erro ao solicitar cancelamento',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -177,6 +223,12 @@ class SessaoController extends Controller
                 return response()->json([
                     'error' => 'Sessão não encontrada',
                 ], 404);
+            }
+
+            if ($sessao->status_sessao !== 'agendada') {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
             }
 
             $nova_data = $request->nova_data;
@@ -205,34 +257,57 @@ class SessaoController extends Controller
                     'agendada',
                     'cancelamento_solicitado',
                     'reagendamento_solicitado',
+                    'cancelamentoPsicologo',
+                    'reagendamentoPsicologo',
+
                 ])
                 ->exists();
 
             if ($ocupado) {
                 return response()->json([
-                    'error' => 'Horário ocupado',
+                    'error' => 'Horário já ocupado',
                 ], 400);
             }
 
-            $hora_fim = date('H:i', strtotime('+50 minutes', strtotime($nova_hora)));
+            $sessao->status_sessao = 'reagendamentoPsicologo';
+            $sessao->data_solicitada = $nova_data;
+            $sessao->hora_solicitada = $nova_hora;
+            $sessao->save();
 
-            $sessao->update([
-                'data_sessao' => $nova_data,
-                'hora_inicio' => $nova_hora,
-                'hora_fim' => $hora_fim,
-            ]);
+            $paciente = Paciente::find($sessao->id_paciente);
+
+            if ($paciente) {
+
+                $usuario = User::find($paciente->id_usuario);
+
+                if ($usuario) {
+
+                    app(PushNotificationService::class)->send(
+                    $usuario,
+                    'Reagendamento solicitado',
+                    'O psicólogo propôs uma nova data para a sessão.',
+                    [
+                        'screen' => 'aprovacaoSol',
+                        'params' => [
+                            'id_sessao' => $sessao->id_sessao,
+                            'tipo' => 'reagendamento'
+                        ]
+                    ]
+                );
+                }
+            }
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Sessão reagendada com sucesso',
+                'message' => 'Solicitação de reagendamento enviada com sucesso',
             ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'error' => 'Erro ao reagendar sessão',
+                'error' => 'Erro ao solicitar reagendamento',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -273,6 +348,9 @@ class SessaoController extends Controller
                 ], 404);
             }
 
+            $statusAnterior = $sessao->status_sessao;
+
+
             $dataSessao = Carbon::parse(
                 $sessao->data_sessao.' '.$sessao->hora_inicio
             );
@@ -290,20 +368,89 @@ class SessaoController extends Controller
             } elseif ($sessao->status_sessao === 'cancelamento_solicitado') {
 
                 $sessao->status_sessao = 'cancelada';
+                $sessao->observacoes = null;
 
             } elseif ($sessao->status_sessao === 'reagendamento_solicitado') {
 
                 $sessao->data_sessao = $sessao->data_solicitada;
                 $sessao->hora_inicio = $sessao->hora_solicitada;
-                $sessao->hora_fim = date('H:i', strtotime('+50 minutes', strtotime($sessao->hora_solicitada)));
-
+                $sessao->hora_fim = Carbon::parse($sessao->hora_solicitada)
+                    ->addMinutes(50)
+                    ->format('H:i');
                 $sessao->data_solicitada = null;
                 $sessao->hora_solicitada = null;
 
                 $sessao->status_sessao = 'agendada';
+            } elseif ($sessao->status_sessao === 'cancelamentoPsicologo') {
+
+                $sessao->status_sessao = 'cancelada';
+                $sessao->observacoes = null;
+
+            } elseif ($sessao->status_sessao === 'reagendamentoPsicologo') {
+
+                $sessao->data_sessao = $sessao->data_solicitada;
+                $sessao->hora_inicio = $sessao->hora_solicitada;
+                $sessao->hora_fim = Carbon::parse($sessao->hora_solicitada)
+                    ->addMinutes(50)
+                    ->format('H:i');
+                $sessao->data_solicitada = null;
+                $sessao->hora_solicitada = null;
+
+                $sessao->status_sessao = 'agendada';
+            } else {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
             }
 
             $sessao->save();
+
+            // Sistema de Notificação não mexer!!
+            $paciente = Paciente::find($sessao->id_paciente);
+
+            if ($paciente) {
+
+                $usuario = User::find($paciente->id_usuario);
+
+                if ($usuario) {
+
+                    $titulo = '';
+                    $mensagem = '';
+
+                    switch ($statusAnterior) {
+
+                        case 'pendente':
+                            $titulo = 'Sessão aprovada';
+                            $mensagem = 'Sua solicitação de sessão foi aprovada.';
+                            break;
+
+                        case 'cancelamento_solicitado':
+                            $titulo = 'Cancelamento aprovado';
+                            $mensagem = 'Sua solicitação de cancelamento foi aprovada.';
+                            break;
+
+                        case 'reagendamento_solicitado':
+                            $titulo = 'Reagendamento aprovado';
+                            $mensagem = 'Sua solicitação de reagendamento foi aprovada.';
+                            break;
+                    }
+
+                    // aprovarSessao — paciente só precisa VER, não aprovar
+                    app(PushNotificationService::class)->send(
+                        $usuario,
+                        $titulo,
+                        $mensagem,
+                        [
+                            'screen' => 'notificacao',   // ← era 'aprovacaoSol', corrigido
+                            'params' => [
+                                'id_sessao' => $sessao->id_sessao,
+                                'tipo'      => $statusAnterior,
+                            ]
+                        ]
+                    );
+                    }
+                }
+            // Notificação acaba aqui
 
             DB::commit();
 
@@ -361,10 +508,47 @@ class SessaoController extends Controller
 
                 $sessao->status_sessao = 'agendada';
 
+            } elseif ($sessao->status_sessao === 'cancelamentoPsicologo') {
+
+                $sessao->status_sessao = 'agendada';
+
+            } elseif ($sessao->status_sessao === 'reagendamentoPsicologo') {
+
+                $sessao->data_solicitada = null;
+                $sessao->hora_solicitada = null;
+
+                $sessao->status_sessao = 'agendada';
+
+            } else {
+                return response()->json([
+                    'error' => 'Ação não permitida para esse status',
+                ], 400);
             }
 
-            $sessao->anotacoes = $motivo;
+            $sessao->observacoes = $motivo;
             $sessao->save();
+
+            $paciente = Paciente::find($sessao->id_paciente);
+
+            if ($paciente) {
+                $usuario = User::find($paciente->id_usuario);
+
+                if ($usuario) {
+                    app(PushNotificationService::class)->send(
+                        $usuario,
+                        'Solicitação recusada',
+                        'Sua solicitação foi recusada.',
+                        [
+                            'screen' => 'notificacao',
+                            'params' => [
+                                'id_sessao' => $sessao->id_sessao,
+                                'tipo' => $sessao->status_sessao
+                            ]
+                        ]
+                    );
+                }
+            }
+
 
             DB::commit();
 
@@ -383,7 +567,7 @@ class SessaoController extends Controller
 
     }
 
-    public function solicitarCancelamento($id_sessao)
+    public function solicitarCancelamento(Request $request, $id_sessao)
     {
 
         DB::beginTransaction();
@@ -398,6 +582,13 @@ class SessaoController extends Controller
             }
 
             $id_paciente = auth()->user()->paciente->id_paciente;
+            $motivo = $request->motivo;
+
+            if (! $motivo) {
+                return response()->json([
+                    'error' => 'O motivo é obrigatório',
+                ], 400);
+            }
 
             if ($sessao->id_paciente != $id_paciente) {
                 return response()->json([
@@ -412,7 +603,24 @@ class SessaoController extends Controller
             }
 
             $sessao->status_sessao = 'cancelamento_solicitado';
+            $sessao->observacoes = $motivo;
             $sessao->save();
+
+            $psicologo = Psicologo::find($sessao->id_psicologo);
+            $usuario = User::find($psicologo->id_usuario);
+
+            app(PushNotificationService::class)->send(
+                $usuario,
+                'Cancelamento solicitado',
+                'O psicologo solicitou o cancelamento da sessão.',
+                [
+                    'screen' => 'aprovacaoSol',
+                    'params' => [
+                        'id_sessao' => $sessao->id_sessao,
+                        'tipo' => 'cancelamento'
+                    ]
+                ]
+            );
 
             DB::commit();
 
@@ -482,6 +690,22 @@ class SessaoController extends Controller
             $sessao->data_solicitada = $nova_data;
             $sessao->hora_solicitada = $nova_hora;
             $sessao->save();
+
+            $psicologo = Psicologo::find($sessao->id_psicologo);
+            $usuario = User::find($psicologo->id_usuario);
+
+            app(PushNotificationService::class)->send(
+                $usuario,
+                'Reagendamento solicitado',
+                'O paciente solicitou um reagendamento.',
+                [
+                    'screen' => 'aprovacaoSol',
+                    'params' => [
+                        'id_sessao' => $sessao->id_sessao,
+                        'tipo' => 'reagendamento'
+                    ]
+                ]
+            );
 
             DB::commit();
 

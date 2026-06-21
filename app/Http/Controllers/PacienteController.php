@@ -14,7 +14,7 @@ class PacienteController extends Controller
     {
 
         try{
-            $psicolgo = Psicologo::where('id_usuario', $id)
+            $psicologo = Psicologo::where('id_usuario', $id)
             ->where('status_psicologo', 'aprovado')
             ->with([
                 'abordagens',
@@ -23,17 +23,17 @@ class PacienteController extends Controller
             ])
             ->first();
 
-            if (!$psicolgo) {
+            if (!$psicologo) {
                 return response()->json([
                     'error' => 'Psicólogo não encontrado'
                 ], 404);
             }
 
-            $user = User::find($psicolgo->id_usuario);
+            $user = User::find($psicologo->id_usuario);
 
             return response()->json([
                 'user' => $user,
-                'psicologo' => $psicolgo
+                'psicologo' => $psicologo
             ], 200);
 
         }catch(\Exception $e){
@@ -73,6 +73,36 @@ class PacienteController extends Controller
         }
     }
 
+
+    public function listarMeusPsicologos()
+    {
+        try {
+
+            $paciente = auth()->user()->paciente;
+
+            $psicologos = User::where('tipo_usuario', 'psicologo')
+                ->where('status_usuario', 'ativo')
+                ->whereHas('psicologo.sessoes', function ($query) use ($paciente) {
+                    $query->where('id_paciente', $paciente->id_paciente);
+                })
+                ->with([
+                    'psicologo.usuario',
+
+                ])
+                ->get();
+
+            return response()->json([
+                'psicologos' => $psicologos,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao listar psicologos',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+
+    }
+
     public function minhasSessoes(){
         try{
 
@@ -98,6 +128,39 @@ class PacienteController extends Controller
         }catch(\Exception $e){
             return response()->json([
                 'error' => 'Erro ao buscar sessões',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function historicoSessoes()
+    {
+        try {
+
+            $id_paciente = auth()->user()->paciente->id_paciente;
+
+            $realizadas = Sessao::where('id_paciente', $id_paciente)
+                ->where('status_sessao', 'realizada')
+                ->with('psicologo.usuario')
+                ->orderBy('data_sessao', 'desc')
+                ->orderBy('hora_inicio', 'desc')
+                ->get();
+
+            $cancelamentos = Sessao::where('id_paciente', $id_paciente)
+                ->where('status_sessao', 'cancelada')
+                ->with('psicologo.usuario')
+                ->orderBy('data_sessao', 'desc')
+                ->orderBy('hora_inicio', 'desc')
+                ->get();
+
+            return response()->json([
+                'realizadas' => $realizadas,
+                'cancelamentos' => $cancelamentos,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao buscar histótico de sessões',
                 'message' => $e->getMessage(),
             ], 500);
         }

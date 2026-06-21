@@ -4,25 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Sessao extends Model
+class Pagamento extends Model
 {
-    protected $table = 'sessao';
-    protected $primaryKey = 'id_sessao';
+    protected $table = 'pagamento';
+
+    protected $primaryKey = 'id_pagamento';
+
+    public $timestamps = true;
 
     protected $fillable = [
+        'id_sessao',
         'id_paciente',
         'id_psicologo',
-        'data_sessao',
-        'hora_inicio',
-        'hora_fim',
-        'valor',
-        'status_sessao',
-        'data_solicitada',
-        'hora_solicitada',
-        'observacoes',
-        'anotacoes',
-        'link_sessao',
+        'tipo_pagamento',
+        'status_pagamento',
+        'valor_total',
+        'comprovante'
     ];
+
+    public function sessao()
+    {
+        return $this->belongsTo(Sessao::class, 'id_sessao');
+    }
 
     public function paciente()
     {

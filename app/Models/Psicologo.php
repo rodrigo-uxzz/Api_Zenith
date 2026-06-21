@@ -17,9 +17,15 @@ class Psicologo extends Authenticatable
         'grau_formacao',
         'biografia',
         'status_psicologo',
+        'preco_sessao',
         'duracao_consulta',
         'intervalo_consulta',
         'avaliacao',
+        'pix_tipo',
+        'pix_chave',
+        'pix_nome_recebedor',
+        'pix_cidade',
+        'link_consulta',
     ];
 
     // App/Models/Psicologo.php
@@ -54,7 +60,13 @@ class Psicologo extends Authenticatable
         );
     }
 
-    public function usuario() {
+    public function usuario()
+    {
         return $this->belongsTo(User::class, 'id_usuario');
+    }
+
+    public function sessoes()
+    {
+        return $this->hasMany(Sessao::class, 'id_psicologo');
     }
 }

@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agenda;
+use App\Models\Especialidade;
 use App\Models\Evento;
 use App\Models\Paciente;
 use App\Models\Psicologo;
 use App\Models\Sessao;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PsicologosController extends Controller
 {
@@ -41,9 +44,19 @@ class PsicologosController extends Controller
     public function listarPacientes()
     {
         try {
+
+            $psicologo = auth()->user()->psicologo;
+
             $pacientes = User::where('tipo_usuario', 'paciente')
                 ->where('status_usuario', 'ativo')
-                ->with('paciente')
+                ->whereHas('paciente.sessoes', function ($query) use ($psicologo) {
+                    $query->where('id_psicologo', $psicologo->id_psicologo);
+                })
+                ->with([
+                    'paciente',
+                    'paciente.sessoes',
+
+                ])
                 ->get();
 
             return response()->json([
@@ -65,62 +78,48 @@ class PsicologosController extends Controller
             $id_psicologo = auth()->user()->psicologo->id_psicologo;
             $data = $request->data;
 
-            $dia_semana = date('w', strtotime($data));
+            $dia_semana = Carbon::parse($data)->dayOfWeek;
 
             $agendas = Agenda::where('id_psicologo', $id_psicologo)
                 ->where('dia_semana', $dia_semana)
                 ->where('status_agenda', 'disponivel')
+                ->where('data_inicio_vigencia', '<=', $data)
+                ->where(function ($q) use ($data) {
+                    $q->whereNull('data_fim_vigencia')
+                        ->orWhere('data_fim_vigencia', '>=', $data);
+                })
                 ->get();
 
             $psicologo = Psicologo::find($id_psicologo);
-
-            if (! $psicologo) {
-                return response()->json([
-                    'error' => 'Psicólogo não encontrado',
-                ], 404);
-            }
 
             $tempoConsulta = (int) $psicologo->duracao_consulta;
             $intervalo = (int) $psicologo->intervalo_consulta;
             $tempoTotal = $tempoConsulta + $intervalo;
 
-            if ($tempoTotal <= 0) {
-                return response()->json([
-                    'error' => 'Configuração de tempo inválida',
-                ], 400);
-            }
-
             $horarios = [];
 
             foreach ($agendas as $agenda) {
 
-                if (! $agenda->hora_inicio || ! $agenda->hora_fim) {
-                    continue;
-                }
-
-                $hora_inicio = strtotime(date('H:i', strtotime($agenda->hora_inicio)));
-                $hora_fim = strtotime(date('H:i', strtotime($agenda->hora_fim)));
+                $hora_inicio = Carbon::parse($agenda->hora_inicio);
+                $hora_fim = Carbon::parse($agenda->hora_fim);
 
                 if (! $hora_inicio || ! $hora_fim || $hora_inicio >= $hora_fim) {
                     continue;
                 }
 
-                $guard = 0;
+                while (true) {
 
-                while (($hora_inicio + ($tempoConsulta * 60)) <= $hora_fim) {
+                    $fimConsulta = $hora_inicio->copy()->addMinutes($tempoConsulta);
 
-                    if ($guard++ > 200) {
+                    if ($fimConsulta->gt($hora_fim)) {
                         break;
                     }
 
-                    $horarios[] = date('H:i', $hora_inicio);
+                    $horarios[] = $hora_inicio->format('H:i');
 
-                    $hora_inicio = strtotime("+{$tempoTotal} minutes", $hora_inicio);
-
-                    if (! $hora_inicio) {
-                        break;
-                    }
+                    $hora_inicio->addMinutes($tempoTotal);
                 }
+
             }
 
             $sessoes = Sessao::where('id_psicologo', $id_psicologo)
@@ -131,13 +130,16 @@ class PsicologosController extends Controller
                     'pendente',
                     'cancelamento_solicitado',
                     'reagendamento_solicitado',
+                    'cancelamentoPsicologo',
+                    'reagendamentoPsicologo',
                 ])
                 ->orderBy('hora_inicio')
                 ->with('paciente.usuario')
+                ->with('psicologo')
                 ->get()
                 ->mapWithKeys(function ($sessao) {
                     return [
-                        date('H:i', strtotime($sessao->hora_inicio)) => $sessao,
+                        Carbon::parse($sessao->hora_inicio)->format('H:i') => $sessao,
                     ];
                 });
 
@@ -145,26 +147,14 @@ class PsicologosController extends Controller
 
             foreach ($horarios as $horario) {
 
-                $horaFormatada = date('H:i:s', strtotime($horario));
+                $horaFormatada = Carbon::createFromFormat('H:i', $horario)->format('H:i:s');
 
                 $evento = Evento::where('id_psicologo', $id_psicologo)
                     ->where(function ($q) use ($data) {
-                        $q->where(function ($q2) use ($data) {
-                            $q2->whereNotNull('data_fim')
-                                ->where('data_inicio', '<=', $data)
-                                ->where('data_fim', '>=', $data);
-                        })
-                            ->orWhere(function ($q2) use ($data) {
-                                $q2->whereNotNull('data_fim')
-                                    ->where('data_inicio', '<=', $data)
-                                    ->where('data_fim', '>=', $data);
-                            })
-                            ->orWhere(function ($q2) use ($data) {
+                        $q->where('data_inicio', '<=', $data)
+                            ->where(function ($q2) use ($data) {
                                 $q2->whereNull('data_fim')
-                                    ->whereDate('data_inicio', $data);
-                            })
-                            ->orWhere(function ($q2) {
-                                $q2->where('slug', 'almoco');
+                                    ->orWhere('data_fim', '>=', $data);
                             });
                     })
                     ->where(function ($q) use ($horaFormatada) {
@@ -174,6 +164,7 @@ class PsicologosController extends Controller
                                     ->where('hora_fim', '>', $horaFormatada);
                             });
                     })
+                    ->orderBy('data_inicio', 'desc')
                     ->first();
 
                 if ($evento) {
@@ -185,12 +176,17 @@ class PsicologosController extends Controller
                         'slug' => $evento->slug,
                         'evento' => $evento,
                     ];
+
                 } elseif (isset($sessoes[$horario])) {
 
+                    $sessao = $sessoes[$horario];
+                    $link = $sessao->link_sessao ?: $sessao->psicologo->link_consulta;
+
                     $sessoesDisponiveis[] = [
-                        'hora_inicio' => $sessoes[$horario]->hora_inicio,
-                        'status_sessao' => $sessoes[$horario]->status_sessao,
-                        'sessao' => $sessoes[$horario],
+                        'hora_inicio' => $sessao->hora_inicio,
+                        'status_sessao' => $sessao->status_sessao,
+                        'link' => $link,
+                        'sessao' => $sessao,
                     ];
 
                 } else {
@@ -211,6 +207,138 @@ class PsicologosController extends Controller
 
             return response()->json([
                 'error' => 'Erro ao buscar consultas do dia',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function consultasDaSemana(Request $request)
+    {
+        try {
+            $id_psicologo = auth()->user()->psicologo->id_psicologo;
+            $data = $request->data ?? now()->toDateString();
+            $dataCarbon = Carbon::parse($data);
+
+            $inicioSemana = $dataCarbon->copy()->startOfWeek(Carbon::SUNDAY);
+            $fimSemana = $dataCarbon->copy()->endOfWeek(Carbon::SATURDAY);
+
+            $psicologo = Psicologo::find($id_psicologo);
+            $tempoConsulta = (int) $psicologo->duracao_consulta;
+            $intervalo = (int) $psicologo->intervalo_consulta;
+            $tempoTotal = $tempoConsulta + $intervalo;
+
+            $semana = [];
+
+            for ($dia = $inicioSemana->copy(); $dia->lte($fimSemana); $dia->addDay()) {
+
+                $dataStr = $dia->toDateString();
+                $diaSemana = $dia->dayOfWeek;
+
+                $agendas = Agenda::where('id_psicologo', $id_psicologo)
+                    ->where('dia_semana', $diaSemana)
+                    ->where('status_agenda', 'disponivel')
+                    ->where('data_inicio_vigencia', '<=', $dataStr)
+                    ->where(function ($q) use ($dataStr) {
+                        $q->whereNull('data_fim_vigencia')
+                            ->orWhere('data_fim_vigencia', '>=', $dataStr);
+                    })
+                    ->get();
+
+                $horarios = [];
+
+                foreach ($agendas as $agenda) {
+                    $hora_inicio = Carbon::parse($agenda->hora_inicio);
+                    $hora_fim = Carbon::parse($agenda->hora_fim);
+
+                    while (true) {
+                        $fimConsulta = $hora_inicio->copy()->addMinutes($tempoConsulta);
+                        if ($fimConsulta->gt($hora_fim)) {
+                            break;
+                        }
+                        $horarios[] = $hora_inicio->format('H:i');
+                        $hora_inicio->addMinutes($tempoTotal);
+                    }
+                }
+
+                $sessoes = Sessao::where('id_psicologo', $id_psicologo)
+                    ->where('data_sessao', $dataStr)
+                    ->whereIn('status_sessao', [
+                        'agendada', 'realizada', 'pendente',
+                        'cancelamento_solicitado', 'reagendamento_solicitado',
+                        'cancelamentoPsicologo', 'reagendamentoPsicologo',
+                    ])
+                    ->orderBy('hora_inicio')
+                    ->with('paciente.usuario', 'psicologo')
+                    ->get()
+                    ->mapWithKeys(fn ($s) => [
+                        Carbon::parse($s->hora_inicio)->format('H:i') => $s,
+                    ]);
+
+                $sessoesDisponiveis = [];
+
+                foreach ($horarios as $horario) {
+                    $horaFormatada = Carbon::createFromFormat('H:i', $horario)->format('H:i:s');
+
+                    $evento = Evento::where('id_psicologo', $id_psicologo)
+                        ->where(function ($q) use ($dataStr) {
+                            $q->where('data_inicio', '<=', $dataStr)
+                                ->where(function ($q2) use ($dataStr) {
+                                    $q2->whereNull('data_fim')
+                                        ->orWhere('data_fim', '>=', $dataStr);
+                                });
+                        })
+                        ->where(function ($q) use ($horaFormatada) {
+                            $q->whereNull('hora_inicio')
+                                ->orWhere(function ($q2) use ($horaFormatada) {
+                                    $q2->where('hora_inicio', '<=', $horaFormatada)
+                                        ->where('hora_fim', '>', $horaFormatada);
+                                });
+                        })
+                        ->orderBy('data_inicio', 'desc')
+                        ->first();
+
+                    if ($evento) {
+                        $sessoesDisponiveis[] = [
+                            'hora_inicio' => $horario,
+                            'status_sessao' => 'bloqueado',
+                            'tipo' => 'evento',
+                            'slug' => $evento->slug,
+                            'evento' => $evento,
+                        ];
+                    } elseif (isset($sessoes[$horario])) {
+                        $sessao = $sessoes[$horario];
+                        $link = $sessao->link_sessao ?: $sessao->psicologo->link_consulta;
+                        $sessoesDisponiveis[] = [
+                            'hora_inicio' => $sessao->hora_inicio,
+                            'status_sessao' => $sessao->status_sessao,
+                            'link' => $link,
+                            'sessao' => $sessao,
+                        ];
+                    } else {
+                        $sessoesDisponiveis[] = [
+                            'hora_inicio' => $horario,
+                            'status_sessao' => 'disponivel',
+                            'sessao' => null,
+                        ];
+                    }
+                }
+
+                $semana[] = [
+                    'data' => $dataStr,
+                    'weekday' => $dia->locale('pt_BR')->isoFormat('dddd'), // ex: "segunda-feira"
+                    'sessoes' => $sessoesDisponiveis,
+                ];
+            }
+
+            return response()->json([
+                'semana' => $semana,
+                'inicio_semana' => $inicioSemana->toDateString(),
+                'fim_semana' => $fimSemana->toDateString(),
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao buscar consultas da semana',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -285,6 +413,81 @@ class PsicologosController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao buscar histótico de sessões',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateEspecialidades(Request $request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $request->validate([
+                'especialidade_ids' => 'required|array',
+                'especialidade_ids.*' => 'exists:especialidades,id_especialidade',
+            ]);
+
+            $user = auth()->user();
+
+            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)->firstOrFail();
+
+            $psicologo->especialidades()->sync($request->especialidade_ids);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Especialidades atualizadas com sucesso',
+                'especialidades' => $psicologo->especialidades,
+            ], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Erro ao atualizar especialidades',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getEspecialidade()
+    {
+        try {
+
+            $user = auth()->user();
+
+            $psicologo = Psicologo::where('id_usuario', $user->id_usuario)
+                ->with('especialidades')
+                ->get();
+
+            return response()->json(
+                $psicologo->especialidades
+            );
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => 'Erro ao buscar especialidades',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getEspecialidades()
+    {
+        try {
+
+            $especialidades = Especialidade::all();
+
+            return response()->json($especialidades);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'error' => 'Erro ao buscar especialidades',
                 'message' => $e->getMessage(),
             ], 500);
         }
