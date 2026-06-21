@@ -31,7 +31,7 @@ class ChatController extends Controller
                 [
                     'status_chat' => 'ativo',
                 ]
-            );  
+            );
 
             DB::commit();
 

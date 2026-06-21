@@ -119,11 +119,12 @@ Route::middleware('auth:sanctum')->group(function () {
 // Rotas Financeiro
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboardFinanceiro', [FinanceiroController::class, 'dashboardFinanceiro']);
+    Route::get('/dashboardFinanceiroSemanal', [FinanceiroController::class, 'dashboardFinanceiroSemanal']);
     Route::get('/listarPagamentos', [FinanceiroController::class, 'listarPagamentos']);
     Route::get('/detalhesPagamento/{id}', [FinanceiroController::class, 'detalhesPagamento']);
     Route::post('/marcarComoPago/{id}', [FinanceiroController::class, 'marcarComoPago']);
     Route::get('/verComprovante/{id}', [FinanceiroController::class, 'verComprovante']);
-    Route::get('/financeiro/pagamentos/semanal', [FinanceiroController::class, 'listarPagamentosSemanal']);
+    Route::get('/listarPagamentosSemanal', [FinanceiroController::class, 'listarPagamentosSemanal']);;
     Route::post('/anexarComprovante/{id}', [FinanceiroController::class, 'anexarComprovante']);
     Route::get('/pagamento/pendente', [FinanceiroController::class, 'pagamentoPendente']);
 

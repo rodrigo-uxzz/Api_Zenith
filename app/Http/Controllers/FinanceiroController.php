@@ -76,6 +76,78 @@ class FinanceiroController extends Controller
         }
     }
 
+    public function dashboardFinanceiroSemanal(Request $request)
+    {
+        try {
+            $data = $request->data ?? now()->toDateString();
+            $dataCarbon = Carbon::parse($data);
+
+            $inicioSemana = $dataCarbon->copy()->startOfWeek(Carbon::SUNDAY);
+            $fimSemana = $dataCarbon->copy()->endOfWeek(Carbon::SATURDAY);
+
+            $idPsicologo = auth()->user()->psicologo->id_psicologo;
+
+            $pendentes = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $inicioSemana, $fimSemana) {
+                $query->where('id_psicologo', $idPsicologo)
+                    ->whereBetween('data_sessao', [
+                        $inicioSemana->toDateTimeString(),
+                        $fimSemana->toDateTimeString(),
+                    ])
+                    ->where('status_sessao', '!=', 'cancelada')
+                    ->where('status_sessao', '!=', 'recusada');
+            })
+                ->where('status_pagamento', 'pendente')
+                ->count();
+
+            $pagas = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $inicioSemana, $fimSemana) {
+                $query->where('id_psicologo', $idPsicologo)
+                    ->whereBetween('data_sessao', [
+                        $inicioSemana->toDateTimeString(),
+                        $fimSemana->toDateTimeString(),
+                    ])
+                    ->where('status_sessao', '!=', 'cancelada')
+                    ->where('status_sessao', '!=', 'recusada');
+            })
+                ->where('status_pagamento', 'pago')
+                ->count();
+
+            $faturamento = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $inicioSemana, $fimSemana) {
+                $query->where('id_psicologo', $idPsicologo)
+                    ->whereBetween('data_sessao', [
+                        $inicioSemana->toDateTimeString(),
+                        $fimSemana->toDateTimeString(),
+                    ])
+                    ->where('status_sessao', '!=', 'cancelada')
+                    ->where('status_sessao', '!=', 'recusada');
+            })
+                ->where('status_pagamento', 'pago')
+                ->sum('valor_total');
+
+            $faturamento_mensal = Pagamento::whereHas('sessao', function ($query) use ($idPsicologo, $dataCarbon) {
+                $query->where('id_psicologo', $idPsicologo)
+                    ->whereMonth('data_sessao', $dataCarbon->month)
+                    ->whereYear('data_sessao', $dataCarbon->year);
+            })
+                ->where('status_pagamento', 'pago')
+                ->sum('valor_total');
+
+            return response()->json([
+                'pendentes' => $pendentes,
+                'pagas' => $pagas,
+                'faturamento' => $faturamento,
+                'faturamento_mensal' => $faturamento_mensal,
+                'inicio_semana' => $inicioSemana->toDateString(),
+                'fim_semana' => $fimSemana->toDateString(),
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Erro ao buscar dados semanais',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function listarPagamentos(Request $request)
     {
 
@@ -307,21 +379,22 @@ class FinanceiroController extends Controller
                 ->whereHas('sessao', function ($query) use ($idPsicologo, $inicioSemana, $fimSemana) {
                     $query->where('id_psicologo', $idPsicologo)
                         ->whereBetween('data_sessao', [
-                            $inicioSemana->toDateString(),
-                            $fimSemana->toDateString(),
+                            $inicioSemana->toDateTimeString(),
+                            $fimSemana->toDateTimeString(),
                         ])
                         ->where('status_sessao', '!=', 'cancelada')
                         ->where('status_sessao', '!=', 'recusada');
                 })
-                ->orderBy('created_at', 'desc')
+                ->join('sessao', 'pagamento.id_sessao', '=', 'sessao.id_sessao')
+->orderBy('sessao.data_sessao', 'asc')
+->orderBy('sessao.hora_inicio', 'asc')
+->select('pagamento.*')
                 ->get();
-
             return response()->json([
                 'pagamentos' => $pagamentos,
                 'inicio_semana' => $inicioSemana->toDateString(),
                 'fim_semana' => $fimSemana->toDateString(),
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao listar pagamentos semanais',
