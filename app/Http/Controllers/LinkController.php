@@ -85,25 +85,38 @@ class LinkController extends Controller
 
             $sessao = Sessao::where('id_sessao', $id_sessao)
                 ->where('id_paciente', $id_paciente)
-                ->with('psicologo')
+                ->with(['psicologo', 'pagamento'])
                 ->firstOrFail();
+
+            $pagamentoConcluido = $sessao->pagamento()
+                ->where('id_paciente', $id_paciente)
+                ->where('status_pagamento', 'pago')
+                ->exists();
+
+            if (!$pagamentoConcluido) {
+                return response()->json([
+                    'error'   => true,
+                    'message' => 'O pagamento da sessão ainda não foi confirmado',
+                ], 403);
+            }
 
             $link = $sessao->link_sessao ?: $sessao->psicologo->link_consulta;
 
             if (!$link) {
                 return response()->json([
-                    'error' => 'Nenhum link disponível para essa sessão',
+                    'error'   => true,
+                    'message' => 'Nenhum link disponível para essa sessão',
                 ], 422);
             }
 
             return response()->json([
-                'link'   => $link,
-                'tipo'   => $sessao->link_sessao ? 'especifico' : 'fixo',
+                'link' => $link,
+                'tipo' => $sessao->link_sessao ? 'especifico' : 'fixo',
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
-                'error'   => 'Erro ao buscar link',
+                'error'   => true,
                 'message' => $e->getMessage(),
             ], 500);
         }

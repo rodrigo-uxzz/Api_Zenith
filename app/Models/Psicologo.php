@@ -69,4 +69,9 @@ class Psicologo extends Authenticatable
     {
         return $this->hasMany(Sessao::class, 'id_psicologo');
     }
+
+    public function avaliacoes()
+    {
+        return $this->hasMany(Avaliacao::class, 'id_psicologo', 'id_psicologo');
+    }
 }

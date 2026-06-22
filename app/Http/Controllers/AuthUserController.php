@@ -84,6 +84,9 @@ class AuthUserController extends Controller
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => $user,
+                'id_paciente' => $user->tipo_usuario === 'paciente' && $user->paciente
+                ? $user->paciente->id_paciente
+                : null,
             ], 200);
 
         } catch (\Exception $e) {

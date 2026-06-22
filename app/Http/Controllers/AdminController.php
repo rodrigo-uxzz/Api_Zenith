@@ -49,7 +49,8 @@ class AdminController extends Controller
                 'abordagens',
                 'especialidades',
                 'atendimentos',
-            ])->get();
+            ])->withAvg('avaliacoes', 'nota')
+            ->get();
 
             return response()->json([
                 'psicologos' => $psicologos,

@@ -33,13 +33,14 @@ class PacienteController extends Controller
             $media = Avaliacao::where('id_psicologo', $psicologo->id_psicologo)->avg('nota');
             $total = Avaliacao::where('id_psicologo', $psicologo->id_psicologo)->count();
 
+            $psicologo->avaliacao = [
+                'media' => round($media ?? 0, 1),
+                'total' => $total,
+            ];
+
             return response()->json([
                 'user' => $user,
                 'psicologo' => $psicologo,
-                'avaliacao' => [
-                    'media' => round($media ?? 0, 1),
-                    'total' => $total,
-                ],
             ], 200);
 
         } catch (\Exception $e) {
