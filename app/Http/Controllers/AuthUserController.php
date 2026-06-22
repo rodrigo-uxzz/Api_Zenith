@@ -120,9 +120,19 @@ class AuthUserController extends Controller
                 ->with('especialidades')
                 ->first();
 
+            $avaliacao = null;
+
+            if ($psicologo) {
+                $avaliacao = [
+                    'media' => round($psicologo->avaliacoes()->avg('nota'), 1) ?? 0,
+                    'total' => $psicologo->avaliacoes()->count(),
+                ];
+            }
+
             return response()->json([
                 'user' => $user,
                 'psicologo' => $psicologo,
+                'avaliacao'  => $avaliacao,
             ], 200);
 
         } catch (\Exception $e) {
@@ -228,10 +238,9 @@ class AuthUserController extends Controller
                 'email' => 'sometimes|email|max:255|unique:users,email,'.$user->id_usuario.',id_usuario',
                 'telefone' => 'sometimes|string|max:20',
                 'senha' => 'sometimes|min:8',
-                'biografia' => 'sometimes|string|max:255',
+                'biografia' => 'sometimes|string|max:500',
                 'foto_perfil' => 'sometimes|image|mimes:jpg,jpeg,png|max:5120',
 
-                // 👇 ADICIONA ISSO
                 'especialidade_ids' => 'sometimes|array',
                 'especialidade_ids.*' => 'exists:especialidades,id_especialidade',
             ]);

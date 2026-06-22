@@ -26,7 +26,7 @@ class LinkController extends Controller
 
         } catch (\Exception $e) {
             return response()->json([
-                'error'   => 'Erro ao salvar link',
+                'error' => 'Erro ao salvar link',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -43,7 +43,7 @@ class LinkController extends Controller
 
         } catch (\Exception $e) {
             return response()->json([
-                'error'   => 'Erro ao buscar link',
+                'error' => 'Erro ao buscar link',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -72,7 +72,7 @@ class LinkController extends Controller
 
         } catch (\Exception $e) {
             return response()->json([
-                'error'   => 'Erro ao salvar link da sessão',
+                'error' => 'Erro ao salvar link da sessão',
                 'message' => $e->getMessage(),
             ], 500);
         }
@@ -88,24 +88,34 @@ class LinkController extends Controller
                 ->with(['psicologo', 'pagamento'])
                 ->firstOrFail();
 
-            $pagamentoConcluido = $sessao->pagamento()
+            $pagamento = $sessao->pagamento()
                 ->where('id_paciente', $id_paciente)
-                ->where('status_pagamento', 'pago')
-                ->exists();
+                ->whereIn('status_pagamento', ['pago', 'aguardando_confirmacao'])
+                ->first();
 
-            if (!$pagamentoConcluido) {
+            if (! $pagamento) {
                 return response()->json([
-                    'error'   => true,
-                    'message' => 'O pagamento da sessão ainda não foi confirmado',
+                    'error' => true,
+                    'code' => 'PAGAMENTO_PENDENTE',
+                    'message' => 'O pagamento da sessão ainda não foi realizado.',
+                ], 403);
+            }
+
+            if ($pagamento->status_pagamento === 'aguardando_confirmacao') {
+                return response()->json([
+                    'error' => true,
+                    'code' => 'AGUARDANDO_CONFIRMACAO',
+                    'message' => 'Seu comprovante foi recebido e está aguardando confirmação do profissional.',
                 ], 403);
             }
 
             $link = $sessao->link_sessao ?: $sessao->psicologo->link_consulta;
 
-            if (!$link) {
+            if (! $link) {
                 return response()->json([
-                    'error'   => true,
-                    'message' => 'Nenhum link disponível para essa sessão',
+                    'error' => true,
+                    'code' => 'SEM_LINK',
+                    'message' => 'Nenhum link disponível para essa sessão.',
                 ], 422);
             }
 
@@ -116,7 +126,8 @@ class LinkController extends Controller
 
         } catch (\Exception $e) {
             return response()->json([
-                'error'   => true,
+                'error' => true,
+                'code' => 'ERRO_INTERNO',
                 'message' => $e->getMessage(),
             ], 500);
         }

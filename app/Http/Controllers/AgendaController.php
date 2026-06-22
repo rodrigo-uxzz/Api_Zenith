@@ -199,6 +199,27 @@ class AgendaController extends Controller
         }
     }
 
+    public function minhaAgenda(Request $request)
+    {
+        $psicologo = auth()->user()->psicologo;
+        $id = $psicologo->id_psicologo;
+
+        $agendas = Agenda::where('id_psicologo', $id)
+            ->whereNull('data_fim_vigencia')
+            ->get(['dia_semana', 'hora_inicio', 'hora_fim']);
+
+        $almoco = Evento::where('id_psicologo', $id)
+            ->where('slug', 'almoco')
+            ->whereNull('data_fim')
+            ->first(['hora_inicio', 'hora_fim']);
+
+        return response()->json([
+            'preco_sessao' => $psicologo->preco_sessao,
+            'agendas' => $agendas,
+            'almoco' => $almoco,
+        ]);
+    }
+
     public function marcarEvento(Request $request)
     {
         DB::beginTransaction();

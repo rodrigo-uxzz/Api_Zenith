@@ -89,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/marcarEvento', [AgendaController::class, 'marcarEvento']);
     Route::post('/configurarAgenda', [AgendaController::class, 'configurarAgenda']);
     Route::get('/psicologo/agenda/semanal', [PsicologosController::class, 'consultasDaSemana']);
+    Route::get('/minhaAgenda', [AgendaController::class, 'minhaAgenda']);
 });
 
 // Rotas Sessão
