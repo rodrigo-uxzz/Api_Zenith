@@ -22,13 +22,6 @@ use App\Http\Controllers\VerificarEmailController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
-// use Illuminate\Support\Facades\Mail;
-// use App\Mail\AgendamentoSessao;
-
-// Route::get('/teste-email', function () {
-//     Mail::to('hypnoszz01@gmail.com')->send(new AgendamentoSessao(null));
-//     return response()->json(['message' => 'Email enviado!']);
-// });
 
 Route::post('/registerPsicologo', [UsersController::class, 'cadastroPsicologo']);
 Route::post('/registerPaciente', [UsersController::class, 'cadastroPaciente']);

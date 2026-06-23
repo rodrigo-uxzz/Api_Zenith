@@ -433,6 +433,16 @@ class SessaoController extends Controller
                             $titulo = 'Reagendamento aprovado';
                             $mensagem = 'Sua solicitação de reagendamento foi aprovada.';
                             break;
+                            
+                        case 'cancelamentoPsicologo':
+                            $titulo = 'Cancelamento aprovado';
+                            $mensagem = 'O cancelamento da sessão foi confirmado.';
+                            break;
+
+                        case 'reagendamentoPsicologo':
+                            $titulo = 'Reagendamento aprovado';
+                            $mensagem = 'A nova data da sessão foi confirmada.';
+                            break;
                     }
 
                     // aprovarSessao — paciente só precisa VER, não aprovar
