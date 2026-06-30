@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Paciente;
-use App\Models\Psicologo;
 use App\Mail\ContaAprovadaMail;
 use App\Mail\ContaReprovadaMail;
-use Illuminate\Support\Facades\Mail;
+use App\Models\Paciente;
+use App\Models\Psicologo;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -50,7 +50,7 @@ class AdminController extends Controller
                 'especialidades',
                 'atendimentos',
             ])->withAvg('avaliacoes', 'nota')
-            ->get();
+                ->get();
 
             return response()->json([
                 'psicologos' => $psicologos,
@@ -174,12 +174,39 @@ class AdminController extends Controller
     public function listarPacientes()
     {
         try {
-            $pacientes = Paciente::with(['usuario', 'psicologo'])->get();
+            $pacientes = Paciente::with([
+                'usuario',
+                'sessoes' => function ($query) {
+                    $query->with('psicologo.usuario')
+                        ->latest('data_sessao');
+                },
+            ])->get();
+
+            $resultado = $pacientes->map(function ($paciente) {
+                $sessaoRecente = $paciente->sessoes->first();
+                $psicologo = $sessaoRecente?->psicologo ?? null;
+
+                return [
+                    'id_paciente' => $paciente->id_paciente,
+                    'nome' => $paciente->usuario?->nome,
+                    'cpf' => $paciente->usuario?->cpf,
+                    'email' => $paciente->usuario?->email,
+                    'telefone' => $paciente->usuario?->telefone,
+                    'status_paciente' => $paciente->status_paciente,
+                    'observacoes' => $paciente->observacoes,
+                    'psicologo' => $psicologo ? [
+                        'id_psicologo' => $psicologo->id_psicologo,
+                        'nome' => $psicologo->usuario?->nome,
+                    ] : null,
+                    'ultima_sessao' => $sessaoRecente?->data_sessao,
+                    'novo_este_mes' => $paciente->created_at?->isCurrentMonth(),
+                ];
+            });
 
             return response()->json([
                 'dados' => [
-                    'pacientes' => $pacientes
-                ]
+                    'pacientes' => $resultado,
+                ],
             ], 200);
 
         } catch (\Exception $e) {
